@@ -1,26 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 
     <style>
-        .imagem{
-            height: 80%;
-            width: 80%;
+        .login{
+            height: 50px;
+            width: 58px;
+        }
+
+        .botaoMenu:hover{
+            color:#fff;
+            background-color: rgb(0, 174, 240);
+        }
+
+        .botaoMenu{
+            height: 50px;
+            width: 462px;
+            background-color: white;
+            color: rgb(0, 174, 240);
+            border-color: rgb(0, 174, 240);
+        }
+
+        .img-fluid{
+            height: 45%;
+            width: 45%;
+            max-width: 100%;
+            height: auto;
+            margin-top: 2%;
         }
     </style>
     <title>View Flask</title>
 </head>
 <body>
-    <input type="button" value="Abrir Caixa">
-    <input type="button" value="Fechar Caixa">
-    <input type="button" value="Cadastrar Produto">
-    <input type="button" value="Vendas"><br>
-    <div id="imglogin"></div>
 
-    <img src="bessa.png" class="imagem">
+    <!--Cabeçalho - Menus -->
+    <div class="btn-group" role="group" aria-label="Basic outlined example">
+        <input type="button" class="botaoMenu btn btn-outline-primary" value="Abrir Caixa">
+        <input type="button" class="botaoMenu btn btn-outline-primary" value="Fechar Caixa">
+        <input type="button" class="botaoMenu btn btn-outline-primary" value="Cadastrar Produto">
+        <input type="button" class="botaoMenu btn btn-outline-primary" value="Vendas"><br>
+
+        <img src="login.png" class="login">
+
+    </div>       
+    <!--Cabeçalho - Menus -->
+
+    <img src="marcadaguabessa.png" class="img-fluid rounded mx-auto d-block">
+    <script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
