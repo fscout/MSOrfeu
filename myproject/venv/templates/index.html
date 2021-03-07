@@ -1,26 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 
     <style>
-        .imagem{
-            height: 80%;
-            width: 80%;
+        body{
+            background-image: url("mercado.jpg");
+        }
+
+        .login{
+            margin-top: 3px;
+            margin-right: 6px;
+            height: 50px;
+            width: 50px;
+            float: right;
+        }
+
+        .bessa{
+            margin-top: 3px;
+            margin-left: 6px;
+            height: 50px;
+            width: 58px;
+            float: left;
+        }
+
+        .botaoMenu:hover{
+            color:#fff;
+            background-color: rgb(5, 102, 141);
+        }
+
+        .botaoMenu{
+            height: 50px;
+            width: 100%;
+            background-color: white;
+            color: rgb(0, 174, 240);
+            border: rgb(0, 174, 240);
+        }
+
+        .botaos{
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .principal{
+            background-color: white;
+        }
+
+        .img-fluid{
+            height: 45%;
+            width: 45%;
+            max-width: 100%;
+            height: auto;
+            margin-top: 2%;
+        }
+
+        .container{
+            margin-top: 10px;
+            border: 2px solid rgb(5, 102, 141);
+        }
+
+        .geral{
+            margin-top: 30px;
+            border-radius: 10px;
+            height: 900px;
+            background-color: rgb(5, 102, 141);
+        }
+
+        .principal{
+            border-radius: 10px;
+            height: 700px;
+        }
+
+        #addTroco{
+            text-align: center;
+            margin-top: 20%;
+        }
+
+        .rodape{
+            margin: 5px;
         }
     </style>
     <title>View Flask</title>
 </head>
 <body>
-    <input type="button" value="Abrir Caixa">
-    <input type="button" value="Fechar Caixa">
-    <input type="button" value="Cadastrar Produto">
-    <input type="button" value="Vendas"><br>
-    <div id="imglogin"></div>
 
-    <img src="bessa.png" class="imagem">
+    <div class="container geral">
+        <!--Cabeçalho - Menus -->
+        <img src="login.png" class="login">
+        <img src="logoBessa.png" class="bessa"><br><br>
+
+        <div class="container botaos">
+            <div class="row">
+                <div class="col-sm">
+                    <input type="button" class="botaoMenu" value="Abrir Caixa">
+                </div>
+                <div class="col-sm">
+                    <input type="button" class="botaoMenu" value="Fechar Caixa">
+                </div>
+                <div class="col-sm">
+                    <input type="button" class="botaoMenu" value="Cadastrar Produto">
+                </div>
+                <div class="col-sm">
+                    <input type="button" class="botaoMenu" value="Vendas">
+                </div>
+            </div>
+        </div>
+
+        <!--Adiciona valor de troco e mostrar total do dia anterior-->
+        <div class="container principal">
+
+        <p id="addTroco">Adicionar valor para troco: <input type="numero" name="" id=""></p>
+        </div>
+
+        <!--Rodapé-->
+        <div class="rodape">
+        <p>Total fechamento de caixa: 1.000 </p>
+        <p>Disponivel em caixa: 0.00</p>
+        </div>
+    </div>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
