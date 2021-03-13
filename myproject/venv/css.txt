@@ -1,9 +1,9 @@
 body{
-    background-image: url("mercado.jpg");
+    background-image: url("static/imagens/mercado.jpg");
 }
 
 .login{
-    margin-top: 4px;
+    margin-top: 3px;
     margin-right: 6px;
     height: 50px;
     width: 50px;
@@ -11,7 +11,7 @@ body{
 }
 
 .bessa{
-    margin-top: 4px;
+    margin-top: 3px;
     margin-left: 6px;
     height: 50px;
     width: 58px;
@@ -21,14 +21,19 @@ body{
 .botaoMenu{
     width: 180px;
     height: 50px;
+    margin-left: -12%;
 }
 
-.botao{
-    margin-top: 20px;
+.img-fluid{
+    height: 45%;
+    width: 45%;
+    max-width: 100%;
+    height: auto;
+    margin-top: 2%;
 }
 
 .geral{
-    margin-top: 20px;
+    margin-top: 30px;
     border-radius: 10px;
     height: 900px;
     background-color: rgb(177, 229, 250);
@@ -37,11 +42,17 @@ body{
 .principal{
     border-radius: 10px;
     height: 700px;
-    margin-top: 3%;
+    padding-top: 20%;
     background-color: white;
-    padding-top: 30%;
 }
 
 .rodape{
     margin: 5px;
 }
+
+
+
+
+
+
+https://www.w3schools.com/bootstrap/bootstrap_button_groups.asp
