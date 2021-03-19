@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ super() }} - Deletar Produto
+{% endblock title %}
+
+{% block main %}
+<div class="container" align="center">
+        <h1 align="center">Apagar Produto: {{produtos.nome}}</h1>
+
+        <form action="/delete/{{produtos.id}}">
+          <div class="form-group col-md-4">
+            <label for="cod_brras">Código</label>
+            <input type="text" class="form-control" id="cod_brras" name="cod_brras" value="{{produtos.cod_brras}}" disabled>
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="descricao_prod">Descricao</label>
+            <input type="text" class="form-control" id="descricao_prod" name="descricao_prod" value="{{produtos.descricao_prod}}" disabled>
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="quant_prod">Quantidade</label>
+            <input type="number" class="form-control" id="quant_prod" name="quant_prod" value="{{produtos.quant_prod}}" disabled>
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="quant_min">Quant. Mínima</label>
+            <input type="number" class="form-control" id="quant_min" name="quant_min" value="{{produtos.quant_min}}" disabled>
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="quant_max">Quant. Máxima</label>
+            <input type="number" class="form-control" id="quant_max" name="quant_max" value="{{produtos.quant_max}}" disabled>
+          </div>
+
+         <!-- Converter o ponto para virgula-->
+
+          <div class="form-group col-md-4">
+            <label for="preco_custo">Preço Custo</label>
+            <input type="text" class="form-control" id="preco_custo" name="preco_custo" value="{{produtos.preco_custo}}" disabled>
+          </div>
+
+          <div class="form-group col-md-4">
+            <label for="preco_venda">Preço Venda</label>
+            <input type="text" class="form-control valor" id="preco_venda" name="preco_venda" value="{{produtos.preco_venda}}" disabled>
+          </div>
+
+              <a href="/produtos_cadastrados"><button type="button" class="btn btn-primary">Cancelar</button></a>
+            <button type="submit" class="btn btn-danger" onclick="msg()">Apagar</button>
+          </div>
+{% endblock main %} 

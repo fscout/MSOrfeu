@@ -1,0 +1,4 @@
+Ao cadastrar uma categoria, perdemos os dados do formulário.
+
+Converter o texto para Maiúsculo nos formulários.
+
