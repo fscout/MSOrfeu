@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ super() }} - Editar Produto
+{% endblock title %}
+
+{% block main %}
+
+<p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+
+<div class="container hider" align="center">
+        <h1 align="center">Editar Produto: {{produtos.nome}}</h1>
+
+        <form action="/edit_produto/{{produtos.id}}" method="POST">
+
+            <div class="form-group col-md-4">
+                <label for="cod_barras">Código</label>
+                <input type="text" class="form-control" id="cod_barras" name="cod_barras" value="{{produtos.cod_barras}}">
+              </div>
+    
+              <div class="form-group col-md-4">
+                <label for="descricao_prod">Descricao</label>
+                <input type="text" class="form-control" id="descricao_prod" name="descricao_prod" value="{{produtos.descricao_prod}}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label for="quant_prod">Quantidade</label>
+                <input type="number" class="form-control" id="quant_prod" name="quant_prod" value="{{produtos.quant_prod}}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label for="quant_min">Quant. Mínima</label>
+                <input type="number" class="form-control" id="quant_min" name="quant_min" value="{{produtos.quant_min}}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label for="quant_max">Quant. Máxima</label>
+                <input type="number" class="form-control" id="quant_max" name="quant_max" value="{{produtos.quant_max}}">
+              </div>
+
+             <!-- Converter o ponto para virgula-->
+
+              <div class="form-group col-md-4">
+                <label for="preco_custo">Preço Custo</label>
+                <input type="text" class="form-control" id="preco_custo" name="preco_custo" value="{{produtos.preco_custo}}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label for="preco_venda">Preço Venda</label>
+                <input type="text" class="form-control valor" id="preco_venda" name="preco_venda" value="{{produtos.preco_venda}}">
+              </div>
+
+              <a href="/produtos_cadastrados"><button type="button" class="btn btn-danger">Cancelar</button></a>
+            <button type="submit" class="btn btn-dark">Alterar Produto</button>
+
+
+            <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script>
+</div>
+{% endblock main %} 

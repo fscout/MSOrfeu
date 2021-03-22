@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+{{ super() }} - Login
+{% endblock title %}
+    
+
+{% block main %}
+
+<div class="container" align="center">
+    <h1>Login</h1>
+    <div class="col-md-6 col-offset-3">
+    <form action="" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.nome_usuario(class="form-control", placeholder="Seu Usuário")}}
+        </div>
+
+        <div class="form-group">
+            {{ form.senha_usuario(class="form-control", placeholder="Sua Senha")}}
+        </div>
+        <div class="checkbox">
+            <label>
+                {{ form.lembrar_me }} Lembrar-me
+            </label>
+
+            <button type="submit" class="btn btn-default">Logar</button>
+        </div>
+    </form>
+</div>
+
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
+</div>
+{% endblock main %}
+    

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{ super() }} - Produtos Cadastrados
+{% endblock title %}
+
+
+
+
+{% block main %}
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/produtos_cadastrados.css')}}">
+<p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+
+
+<div class="container hider" align="center">
+
+    <h1 align="center" class="fill2" >Produtos Cadastrados</h1>
+    <table border="1" width="70%" class="table table-striped">
+        <thead>
+            <tr>
+                <th class="fill2">Código</th>
+                <th class="fill2">Descricao</th>
+                <th class="fill2">Quantidade</th>
+                <th class="fill2">Quant. Mínima</th>
+                <th class="fill2">Quant. Máxima</th>
+                <th class="fill2">Preço Custo</th>
+                <th class="fill2">Preço Venda</th>
+                <th class="fill2">Categoria</th>
+                <th class="fill2">Marca</th>
+                <th class="fill2">Medida</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td>{{p.cod_barras}}</td>
+                <td>{{p.descricao_prod}}</td>
+                <td>{{p.quant_prod}}</td>
+                <td>{{p.quant_min}}</td>
+                <td>{{p.quant_max}}</td>
+                <td class="valor">{{p.preco_custo}}</td>
+                <td class="valor">{{p.preco_venda}}</td>
+                <td>{{p.nome_categoria}}</td>
+                <td>{{p.nome_marca}}</td>
+                <td>{{p.nome_medida}}</td>
+                <td>
+                    <a href="/edit_produto/{{p.id}}"> <img src="{{url_for('static', filename='images/editar.png')}}"></a>
+                    <a href="/deletar_produto/{{p.id}}"> <img src="{{url_for('static', filename='images/remover.png')}}"></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script>
+{% endblock main %} 
+
