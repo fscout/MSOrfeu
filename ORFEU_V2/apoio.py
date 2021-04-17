@@ -162,3 +162,155 @@ def consultar_1_produto():
     </nav>
         
     {% endblock header %}
+
+
+
+CREATE DATABASE orfeu;
+USE orfeu;
+
+CREATE TABLE Endereco
+(
+      idEndereco SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , cep VARCHAR(9)
+    , logradouro VARCHAR(50)
+    , numero SMALLINT
+    , complemento VARCHAR(20)
+    , bairro VARCHAR(30)
+    , cidade VARCHAR(30)
+    , uf VARCHAR(2)
+)
+
+CREATE TABLE Contato
+( 
+      idContato SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , telefoneFixo VARCHAR(12)
+    , telefoneCelular VARCHAR(12) NOT NULL
+    , email VARCHAR(50)
+)
+
+CREATE TABLE Pessoa
+(
+      idPessoa SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , nomePessoa VARCHAR(50) NOT NULL
+    , cpf VARCHAR(12) UNIQUE
+    , rg VARCHAR(10) UNIQUE
+    , idEndereco SMALLINT
+    , idContato SMALLINT NOT NULL
+    , FOREIGN KEY(idEndereco) REFERENCES Endereco(idEndereco)
+    , FOREIGN KEY(idContato) REFERENCES Contato(idContato)
+)
+
+CREATE TABLE NivelAcesso
+(
+      idNivelAcesso TINYINT IDENTITY(1,1) PRIMARY KEY
+    , nivelAcesso VARCHAR(12) UNIQUE NOT NULL
+)
+
+
+CREATE TABLE Pessoa_Usuario
+(
+      idUsuario SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , [login] VARCHAR(25) UNIQUE NOT NULL
+    , senha VARCHAR(128) NOT NULL
+    , statusUsuario BIT DEFAULT 1
+    , idPessoa SMALLINT NOT NULL
+    , idNivelAcesso TINYINT NOT NULL
+    , FOREIGN KEY(idNivelAcesso) REFERENCES NivelAcesso(idNivelAcesso)
+    , FOREIGN KEY(idPessoa) REFERENCES Pessoa(idPessoa)
+)
+
+
+CREATE TABLE Pessoa_Fiado
+(
+      idFiado SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , dataPag DATE
+    , valorDivida DECIMAL(9,2) DEFAULT 0
+    , dataUltimaCompra DATE
+    , idPessoa SMALLINT NOT NULL
+    , FOREIGN KEY(idPessoa) REFERENCES Pessoa(idPessoa)
+)
+
+CREATE TABLE Categoria
+(
+      idCategoria SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , nomeCategoria VARCHAR(30) UNIQUE NOT NULL
+)
+
+
+CREATE TABLE Marca
+(
+      idMarca SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , nomeMarca VARCHAR(30) UNIQUE NOT NULL
+)
+
+
+
+CREATE TABLE Medida
+(
+      idMedida SMALLINT IDENTITY(1,1) PRIMARY KEY
+    , nomeMedida VARCHAR(30) UNIQUE NOT NULL
+)
+
+
+CREATE TABLE Produto
+(
+      idProduto INT IDENTITY(1,1) PRIMARY KEY
+    , codProd VARCHAR(13) UNIQUE
+    , codBarras VARCHAR(13) UNIQUE
+    , descricaoProd VARCHAR(40)
+    , quantProd SMALLINT
+    , quantMin SMALLINT
+    , quantMax SMALLINT
+    , precoCusto DECIMAL(9,2) NOT NULL
+    , precoVenda DECIMAL(9,2) NOT NULL
+    , idCategoria SMALLINT
+    , idMarca SMALLINT
+    , idMedida SMALLINT
+    , FOREIGN KEY(idCategoria) REFERENCES Categoria(idCategoria)
+    , FOREIGN KEY(idMarca) REFERENCES Marca(idMarca)
+    , FOREIGN KEY(idMedida) REFERENCES Medida(idMedida)
+)
+
+
+CREATE TABLE Venda
+(
+    idVenda INT IDENTITY(1,1) PRIMARY KEY
+    , dataVenda DATE
+    , idUsuario SMALLINT NOT NULL
+    , idFiado SMALLINT NULL
+    , FOREIGN KEY(idUsuario) REFERENCES Pessoa_Usuario(idUsuario)
+    , FOREIGN KEY(idFiado) REFERENCES Pessoa_Fiado(idFiado)
+)
+
+CREATE TABLE Venda_DetalhesVenda
+(
+    idDetalhesVenda INT IDENTITY(1,1) PRIMARY KEY
+    , quantProdVenda SMALLINT NOT NULL
+    , valorUnitarioVenda DECIMAL(9,2)
+    , idVenda INT NOT NULL
+    , idProduto INT NOT NULL
+    , FOREIGN KEY(idVenda) REFERENCES Venda(idVenda)
+    , FOREIGN KEY(idProduto) REFERENCES Produto(idProduto)
+)
+
+CREATE TABLE Venda_TipoPagamento
+(
+    idTipoPagamento INT IDENTITY(1,1) PRIMARY KEY
+    , tipoPagamento VARCHAR(12)
+    , idVenda INT NOT NULL
+    , FOREIGN KEY(idVenda) REFERENCES Venda(idVenda)
+)
+
+SELECT * FROM Endereco;
+SELECT * FROM Contato;
+SELECT * FROM Pessoa;
+SELECT * FROM NivelAcesso;
+SELECT * FROM Pessoa_Usuario;
+SELECT * FROM Pessoa_Fiado;
+SELECT * FROM Categoria;
+SELECT * FROM Marca;
+SELECT * FROM Medida;
+SELECT * FROM Produto;
+SELECT * FROM Venda;
+SELECT * FROM Venda_DetalhesVenda;
+SELECT * FROM Venda_TipoPagamento;

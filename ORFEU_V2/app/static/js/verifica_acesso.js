@@ -3,7 +3,7 @@ window.onload = verifica_acesso()
 function verifica_acesso(){
     nivel = document.getElementsByClassName("nivel")
     // alert(nivel[0].innerHTML + " Testes")
-    if (nivel[0].innerHTML != "adm") {
+    if (nivel[0].innerHTML != "admin") {
         // Definir como será apresentada a mensagem para o usuário que não tem permissão. EX: Modal, Alert, etc...
         alert("Ops! Vc não tem acesso! ")
         window.location.href = "/index";

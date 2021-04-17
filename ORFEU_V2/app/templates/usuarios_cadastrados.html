@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{ super() }} - Usuários Cadastrados
+{% endblock title %}
+
+
+{% block main %}
+
+<!-- <p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+
+<div class="container hider" align="center"> -->
+
+<div class="container" align="center">
+    <h1 align="center" class="fill2" >Usuários Cadastrados</h1>
+    <table border="1" width="70%" class="table table-striped">
+        <thead>
+            <tr>
+                <th class="fill2">NOME</th>
+                <th class="fill2">TELEFONE</th>
+                <th class="fill2">EMAIL</th>
+                <th class="fill2">LOGIN</th>
+                <th class="fill2">SENHA</th>
+                <th class="fill2">STATUS</th>
+                <th class="fill2">ID_NIVEL_ACESSO_ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- u = usuario -->
+            {% for u in usuarios %}
+            <tr>
+                <td>{{u.nome}}</td>
+                <td>{{u.telefone}}</td>
+                <td >{{u.email}}</td>
+                <td>{{u.login}}</td>
+                <td>{{u.senha}}</td>
+                <td>{{u.status}}</td>
+                <td>{{u.id_nivel_acesso_id}}</td>
+                <td>
+                    <a href="/edit_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/editar.png')}}"></a>
+                    <a href="/deletar_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/remover.png')}}"></a>
+                    <a href="/deletar_usuario/{{u.id}}"> <button>Resertar Senha</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->
+
+</div>
+
+{% endblock main %} 

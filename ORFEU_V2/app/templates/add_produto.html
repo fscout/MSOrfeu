@@ -9,10 +9,14 @@
 
 {% block main %}
 
-<p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+<!-- <p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
 
 
-<div class="container hider" align="center">
+<div class="container hider" align="center"> -->
+
+
+<div class="container" align="center">
+
   <h1 align="center" class="fill2">Cadastrar Produto</h1>
 
   <form action="/add_produto" method="POST">
@@ -242,7 +246,7 @@
 
 
 
-  <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script>
+  <!-- <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->
 
 </div>
 

@@ -6,9 +6,11 @@
 
 {% block main %}
 
-<p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+<!-- <p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
 
-<div class="container hider" align="center">
+<div class="container hider" align="center"> -->
+
+<div class="container" align="center">
         <h1 align="center">Apagar Produto: {{produtos.nome}}</h1>
 
         <form action="/delete/{{produtos.id}}">
@@ -53,6 +55,6 @@
             <button type="submit" class="btn btn-danger" onclick="msg()">Apagar</button>
 
 
-            <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script>
+            <!-- <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->
           </div>
 {% endblock main %} 
