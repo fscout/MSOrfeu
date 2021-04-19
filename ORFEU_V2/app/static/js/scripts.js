@@ -42,7 +42,7 @@ id_medida.value = id_medida_select.value
 }
 
 
-// function converteParaMaiuscula()
+// function converteParaMaiuscula() 
 // {
 // var texto = document.getElementById("descricao_prod");
 // texto.value = texto.value.toUpperCase();
@@ -87,7 +87,4 @@ function envia_dados() {
 //         }
 //     });
 // }
-
-
-
 

@@ -106,3 +106,5 @@ dist
 
 .vscode
 __pycache__
+
+migrations

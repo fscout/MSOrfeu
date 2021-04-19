@@ -314,3 +314,75 @@ SELECT * FROM Produto;
 SELECT * FROM Venda;
 SELECT * FROM Venda_DetalhesVenda;
 SELECT * FROM Venda_TipoPagamento;
+
+
+/**********************************************/
+
+
+{% extends 'base.html' %}
+
+
+{% block title %}
+{{ super() }} - Login
+{% endblock title %}
+    
+
+{% block main %}
+
+<div class="container" align="center">
+    <h1>Login</h1>
+    <div class="col-md-6 col-offset-3">
+    <form action="" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.login(class="form-control", placeholder="Seu Usuário")}}
+        </div>
+
+        <div class="form-group">
+            {{ form.senha(class="form-control", placeholder="Sua Senha")}}
+        </div>
+        <div class="checkbox">
+            <label>
+                {{ form.lembrar_me }} Lembrar-me
+            </label>
+
+            <button type="submit" class="btn btn-default">Logar</button>
+        </div>
+    </form>
+</div>
+
+
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#esqueciSenha">
+        Esqueci a senha!
+      </button>
+    
+  <!-- Modal Categoria -->
+  <div class="modal fade" id="esqueciSenha" tabindex="-1" role="dialog" aria-labelledby="esqueciSenhaLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="esqueciSenhaLabel">Esqueceu sua senha? Não se preocupe, digite seu e-mail abaixo e te encaminharemos uma senha provisória</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form action="/recuperar_senha_email" method="POST">
+          <div class="form-group col-md-4">
+            <!-- <label class="fill2" for="email">Digite o seu e-mail:</label> -->
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Enviar Senha</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        </form>
+      </div>
+</div>
+</div>
+</div>
+</div>
+{% endblock main %}
+    

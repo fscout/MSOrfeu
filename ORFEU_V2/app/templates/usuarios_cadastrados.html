@@ -35,12 +35,19 @@
                 <td >{{u.email}}</td>
                 <td>{{u.login}}</td>
                 <td>{{u.senha}}</td>
-                <td>{{u.status}}</td>
-                <td>{{u.id_nivel_acesso_id}}</td>
+                <td>{{u.verificar_status()}}</td>
+                <td>{{u.exibir_nivel_acesso()}}</td>
                 <td>
                     <a href="/edit_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/editar.png')}}"></a>
                     <a href="/deletar_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/remover.png')}}"></a>
-                    <a href="/deletar_usuario/{{u.id}}"> <button>Resertar Senha</button></a>
+                    
+                    {% if u.verificar_status() == 'BLOQUEADO' %}
+                        <a href="/desbloquear_usuario/{{u.id}}"><button>DESBLOQUEAR</button></a>
+                        {% else %}
+                        <a href="/bloquear_usuario/{{u.id}}"><button>BLOQUEAR</button></a>
+                    {% endif %}
+                    <p></p>
+                    <a href="/resetar_usuario/{{u.id}}"><button>Resetar Senha</button></a>
                 </td>
             </tr>
             {% endfor %}

@@ -41,7 +41,12 @@ login_manager.session_protection = "strong"
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html")
+    return redirect(url_for('login'))
+
+# @app.route('/teste_login')
+# def teste_login():
+#     usuario = Usuario.query.get(3)
+#     return str(usuario.descriptografar_senha('LyKUe6XD'))
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -51,11 +56,17 @@ def login():
         usuario = Usuario.query.filter_by(
             login=form.login.data).first()
         if usuario and usuario.descriptografar_senha(form.senha.data):
-            if form.lembrar_me.data:
-                login_user(usuario, remember=True, duration=timedelta(days=2))
-            else:
-                login_user(usuario)
-            return render_template('index.html')
+            if usuario.status:
+                if not usuario.recuperou_senha:
+                    return render_template('alterar_senha_usuario.html', usuario=usuario)
+                if form.lembrar_me.data:
+                    login_user(usuario, remember=True,
+                               duration=timedelta(days=2))
+                else:
+                    login_user(usuario)
+                return render_template('index.html')
+            flash("Usuário encontra-se bloqueado!")
+            return redirect(url_for('login'))
         else:
             flash("Dados inválidos!")
             return redirect(url_for('login'))
@@ -144,6 +155,80 @@ def delete_user(id):
     # print('Não existe esse ID')
     return redirect(url_for('usuarios_cadastrados'))
 
+
+@app.route("/bloquear_usuario/<int:id>")
+@login_required
+def bloquear_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.bloquear_usuario()
+        # print('Usuário Bloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/desbloquear_usuario/<int:id>")
+@login_required
+def desbloquear_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.desbloquear_usuario()
+        # print('Usuário desbloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/resetar_usuario/<int:id>")
+@login_required
+def resetar_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.resetar_usuario()
+        # print('Usuário desbloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/recuperar_senha_email", methods=['GET', 'POST'])
+def recuperar_senha_email():
+    if request.method == 'POST':
+        usuarios = Usuario.query.all()
+        for usuario in usuarios:
+            if usuario.email == request.form['email']:
+                msg = usuario.esqueci_senha()
+                return render_template('mensagens_erro.html', msg=msg)
+        return render_template('mensagens_erro.html', msg='E-mail não localizado!')
+    return redirect(url_for('login'))
+
+
+@app.route("/alterar_senha_2/<int:id>", methods=['GET', 'POST'])
+def alterar_senha_2(id):
+    if request.method == 'POST':
+        usuario = Usuario.query.get(id)
+        if usuario:
+            usuario.alterar_senha_provisoria(usuario.senha, request.form['senha'])
+            usuario.alterar_recuperou_senha()
+            return redirect(url_for('index'))
+    return render_template('mensagens_erro.html', msg='Erro! Precisa ser método POST')
+
+
+# usuario1 = Usuario.query.get(1)
+# usuario1.recuperou_senha = False
+# db.session.commit()
+# usuario2 = Usuario.query.get(2)
+# usuario2.recuperou_senha = True
+# db.session.commit()
+# usuario3 = Usuario.query.get(3)
+# usuario3.recuperou_senha = True
+# db.session.commit()
+
+
+# @app.route("/mensagens_erro")
+# def mensagens_erro():
+#     return render_template('mensagens_erro.html')
 
 @app.route("/op_caixa")
 @login_required
@@ -270,7 +355,7 @@ def add_medida():
     return redirect(url_for('add_produto'))
 
 
-
+'''
 print("# ********************** TESTES NÍVEL DE ACESSO ********************** #")
 # nivel_acesso
 # admin = NivelAcesso('admin')  # ID 1
@@ -282,19 +367,22 @@ print('ADMINISTRADOR: ', admin)
 print('ADMINISTRADOR: ', admin.nivel_acesso)
 
 
-# op_caixa = NivelAcesso('op_caixa')  # ID 2
-# db.session.add(op_caixa)
+# op_caixa_01 = NivelAcesso('op_caixa')  # ID 2
+# db.session.add(op_caixa_01)
 # db.session.commit()
-op_caixa = NivelAcesso.query.get(2)
-print('OPERADOR DE CAIXA: ', op_caixa)
-print('OPERADOR DE CAIXA: ', op_caixa.nivel_acesso)
-
+op_caixa_01 = NivelAcesso.query.get(3)
+print('OPERADOR DE CAIXA: ', op_caixa_01)
+print('OPERADOR DE CAIXA: ', op_caixa_01.nivel_acesso)
+op_caixa_01
 print(100 * '*')
 print()
 print()
 print()
 
+'''
 
+
+'''
 print("# ********************** TESTES USUARIO ********************** #")
 # nome, telefone, email, login, senha, id_nivel_acesso_id=2
 
@@ -312,17 +400,27 @@ print('USUÁRIO 01 LOGIN: ', user_maria.login)
 print('USUÁRIO 01 SENHA: ', user_maria.senha)
 print('USUÁRIO 01 STATUS: ', user_maria.status)
 print('USUÁRIO 01 ID_NIVEL_ACESSO_ID: ', user_maria.id_nivel_acesso_id)
+# BLOQUEAR USUÁRIO
+user_maria.bloquear_usuario()
+print('USUÁRIO 01 STATUS BLOQUEADO: ', user_maria.status)
+# DESBLOQUEAR USUÁRIO
+user_maria.desbloquear_usuario()
+print('USUÁRIO 01 STATUS DESBLOQUEADO', user_maria.status)
+# VERIFICAR STATUS USUÁRIO
+print('VERIFICAR STATUS USUÁRIO: ', user_maria.verificar_status())
+# ALTERAÇÃO DE SENHA
+print('ALTERAÇÃO DE SENHA: ', user_maria.alterar_senha('123@Orfeu', '123'))
 
 
 print(100 * '*')
 
-# op_caixa = NivelAcesso.query.get(2)
+# op_caixa_01 = NivelAcesso.query.get(1)
 # user_joao = Usuario('Joao', '1199992222', 'joao@email.com',
-#                     'joao.joao', '123', op_caixa.id)
+#                     'joao.joao', '123', op_caixa_01.id)
 
 # db.session.add(user_joao)
 # db.session.commit()
-user_joao = Usuario.query.get(2)
+user_joao = Usuario.query.get(3)
 print('USUÁRIO 02 ID: ', user_joao)
 print('USUÁRIO 02 NOME: ', user_joao.nome)
 print('USUÁRIO 02 TELEFONE: ', user_joao.telefone)
@@ -332,11 +430,21 @@ print('USUÁRIO 02 SENHA: ', user_joao.senha)
 print('USUÁRIO 02 STATUS: ', user_joao.status)
 print('USUÁRIO 02 ID_NIVEL_ACESSO_ID: ', user_joao.id_nivel_acesso_id)
 
+# BLOQUEAR USUÁRIO
+user_joao.bloquear_usuario()
+print('USUÁRIO 02 STATUS BLOQUEADO: ', user_joao.status)
+# BLOQUEAR USUÁRIO
+user_joao.bloquear_usuario()
+print('USUÁRIO 02 STATUS BLOQUEADO', user_joao.status)
+# VERIFICAR STATUS USUÁRIO
+print('VERIFICAR STATUS USUÁRIO: ', user_joao.verificar_status())
+user_joao.desbloquear_usuario()
+print('USUÁRIO 02 STATUS BLOQUEADO', user_joao.status)
+
 print(100 * '*')
 print()
 print()
 print()
-
 
 # ************************************************************************
 # ************************************************************************
@@ -894,3 +1002,5 @@ print(100 * '*')
 print()
 print()
 print()
+
+'''

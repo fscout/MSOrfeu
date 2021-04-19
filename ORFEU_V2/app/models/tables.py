@@ -2,6 +2,7 @@ from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+from app.models import recuperacao_senha
 
 
 '''
@@ -60,6 +61,7 @@ class Usuario(db.Model, UserMixin):
     login = db.Column(db.String(25), nullable=False, unique=True)
     senha = db.Column(db.String(128), nullable=False)
     status = db.Column(db.Boolean)
+    recuperou_senha = db.Column(db.Boolean)
 
     id_nivel_acesso_id = db.Column(db.Integer,
                                    db.ForeignKey("nivel_acesso.id"),
@@ -78,6 +80,8 @@ class Usuario(db.Model, UserMixin):
         self.senha = generate_password_hash(senha)
         self.status = True  # True = Desbloqueado - False = Bloqueado.
         self.id_nivel_acesso_id = id_nivel_acesso_id
+        # True = Recuperou - False = Não Recuperou.
+        self.recuperou_senha = False
 
     '''O método abaixo serve para criptografar a senha do usuário, fazendo com
     os dados dele estejam mais seguros'''
@@ -94,22 +98,74 @@ class Usuario(db.Model, UserMixin):
         return check_password_hash(self.senha, senha)
 
     # Tratar no front a exibição do status do usuário
+    def exibir_nivel_acesso(self):
+        if self.id_nivel_acesso_id == 1:
+            return 'ADMINISTRADOR'  # TRUE
+        return 'OPERADOR DE CAIXA'  # FALSE
+
+    # Tratar no front a exibição do status do usuário
     def verificar_status(self):
         if self.status:
-            return 'Desbloqueado'  # TRUE
-        return 'Bloqueado'  # FALSE
+            return 'DESBLOQUEADO'  # TRUE
+        return 'BLOQUEADO'  # FALSE
 
     def bloquear_usuario(self):
         self.status = False
         db.session.add(self)
         db.session.commit()
-        return self.verificar_status()
+        # return self.verificar_status()
 
     def desbloquear_usuario(self):
         self.status = True
         db.session.add(self)
         db.session.commit()
-        return self.verificar_status()
+        # return self.verificar_status()
+
+    def resetar_usuario(self):
+        self.senha = self.criptografar_senha('123@Orfeu')
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
+    # O método abaixo serve para alterar a senha quando o usuário
+    # sabe a senha atual
+    def alterar_senha(self, senha_atual, nova_senha):
+        if self.descriptografar_senha(senha_atual):
+            self.senha = self.criptografar_senha(nova_senha)
+            db.session.add(self)
+            db.session.commit()
+            return 'Senha alterada com sucesso!'
+        return 'Senha inválida!'
+
+    # O método abaixo serve para alterar a senha quando o usuário
+    # recebe a senha provisória
+    def alterar_senha_provisoria(self, senha_provisoria, nova_senha):
+        print(self.senha == senha_provisoria)
+        if self.senha == senha_provisoria:
+            self.senha = self.criptografar_senha(nova_senha)
+            db.session.add(self)
+            db.session.commit()
+            return 'Senha alterada com sucesso!'
+        return 'Senha inválida!'
+
+    # O método abaixo nos ajudará a recuperar a senha por e-mail
+    def esqueci_senha(self):
+        senha_provisoria = recuperacao_senha.gerar_senha_aleatoria()
+        self.senha = self.criptografar_senha(senha_provisoria)
+        db.session.add(self)
+        db.session.commit()
+        self.recuperou_senha = True
+        return recuperacao_senha.enviar_senha_email(self.email,
+                                                    senha_provisoria)
+
+    # O método abaixo muda o recuperou_senha para True, ou seja,
+    # estamos dizendo que o usuário recuperou a senha e com isso o sistema
+    # redirecionará o usuário para alterar a senha provisória
+    def alterar_recuperou_senha(self):
+        self.recuperou_senha = True
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
 
     def __repr__(self):
         return "<User %r>" % self.id

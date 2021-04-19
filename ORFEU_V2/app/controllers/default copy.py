@@ -14,69 +14,338 @@ from app.models.tables import Justificativa, MovimentacaoCaixa
 from datetime import datetime
 
 
-# Adaptar a função abaixo para o novo cenário de inclusão de usuário
-# @app.route('/login', methods=["GET", "POST"])
-# def adicionar_usuario():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         usuario = Usuario.query.filter_by(
-#             login=form.login.data).first()
-#         if usuario and usuario.verify_password(form.senha.data):
-#             if form.lembrar_me.data:
-#                 login_user(usuario, remember=True, duration=timedelta(days=1))
-#             else:
-#                 login_user(usuario)
-#             return render_template('index.html')
-#         else:
-#             flash("Dados inválidos!")
-#             return redirect(url_for('login'))
-#     return render_template('login.html', form=form)
-
-# usuario01 = Usuario('marcio1', '007', 1) # Op. Caixa
-# usuario02 = Usuario('marcio2', '007', 2) # Admin
-# print(usuario01.login)
-# print(usuario01.senha)
-# print(usuario01.status)
-# print(usuario01.id_nivel_acesso_id)
-
-# print(usuario02.login)
-# print(usuario02.senha)
-# print(usuario02.status)
-# print(usuario02.id_nivel_acesso_id)
-
-# NivelAcesso
-# Usuario
-# Cliente
-# Categoria
-# Marca
-# Medida
-# Produto
-# Venda
-# TipoPagamento
-# DetalhesPagamento
-# DetalhesVenda
-# Justificativa
-# MovimentacaoCaixa
-
-# select * from nivel_acesso;
-# select * from usuario;
-# select * from cliente;
-# select * from categoria;
-# select * from marca;
-# select * from medida;
-# select * from produto;
-# select * from venda;
-# select * from tipo_pagamento;
-# select * from detalhes_pagamento;
-# select * from detalhes_venda;
-# select * from justificativa;
-# select * from movimentacao_caixa;
+@login_manager.user_loader
+def get_user(user_id):
+    return Usuario.query.filter_by(id=user_id).first()
 
 
-print()
-print()
-print()
+'''
+    A linha abaixo direciona o usuário para tela de login, caso ele não tenha
+    logado, ou seja, tenha tentado acessar o conteúdo diretamente.
+'''
+login_manager.login_view = "login"
 
+'''
+    A linha abaixo nos permite personalizar a mensagem que o usuário receberá
+    após tentar acessar uma página privada sem logar.
+'''
+
+login_manager.login_message = u"Você precisa logar para acessar o conteúdo da página!"
+
+
+login_manager.session_protection = "strong"
+
+# Preciso colocar outro conteúdo na página index.
+
+
+@app.route("/")
+@app.route("/index")
+def index():
+    return render_template("index.html")
+
+@app.route('/teste_login')
+def teste_login():
+    usuario = Usuario.query.get(3)
+    return str(usuario.descriptografar_senha('LyKUe6XD'))
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        usuario = Usuario.query.filter_by(
+            login=form.login.data).first()
+        if usuario and usuario.descriptografar_senha(form.senha.data):
+            if usuario.status:
+                if usuario.recuperou_senha:
+                    return render_template('alterar_senha_usuario.html', usuario=usuario)
+                if form.lembrar_me.data:
+                    login_user(usuario, remember=True,
+                               duration=timedelta(days=2))
+                else:
+                    login_user(usuario)
+                return render_template('index.html')
+            flash("Usuário encontra-se bloqueado!")
+            return redirect(url_for('login'))
+        else:
+            flash("Dados inválidos!")
+            return redirect(url_for('login'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route("/usuarios_cadastrados")
+@login_required
+def usuarios_cadastrados():
+    usuarios = Usuario.query.all()
+    # for u in usuarios:
+    #     print(u.nome)
+    return render_template("usuarios_cadastrados.html", usuarios=usuarios)
+
+
+@app.route("/add_usuario", methods=['GET', 'POST'])
+@login_required
+def add_usuario():
+    if request.method == 'POST':
+        usuarios = Usuario.query.all()
+        for u in usuarios:
+            #  Se o email ou login já existir mandar de volta para o index
+            if u.email == request.form['email']:
+                return redirect(url_for('index'))
+            if u.login == request.form['login']:
+                return redirect(url_for('index'))
+        usuario = Usuario(request.form['nome'], request.form['telefone'],
+                          request.form['email'],
+                          request.form['login'],
+                          request.form['senha'], request.form['id_nivel_acesso_id'])
+        db.session.add(usuario)
+        db.session.commit()
+        return redirect(url_for('usuarios_cadastrados'))
+    return render_template('add_usuario.html')
+
+
+@app.route("/edit_usuario/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_usuario(id):
+    usuario = Usuario.query.get(id)
+    if request.method == 'POST':
+        usuarios = Usuario.query.all()
+        for u in usuarios:
+            if u.id != usuario.id:
+                #  Se o email já existir mandar de volta para o index
+                if u.email == request.form['email']:
+                    # print('Esse e-mail já foi cadastrado')
+                    return redirect(url_for('index'))
+                #  Se o login já existir mandar de volta para o index
+                if u.login == request.form['login']:
+                    # print('Esse login já foi cadastrado')
+                    return redirect(url_for('index'))
+        usuario.nome = request.form['nome']
+        usuario.telefone = request.form['telefone']
+        usuario.email = request.form['email']
+        usuario.login = request.form['login']
+        usuario.senha = request.form['senha']
+        usuario.id_nivel_acesso_id = request.form['id_nivel_acesso_id']
+        db.session.commit()
+        return usuarios_cadastrados()
+    return render_template('edit_usuario.html', usuario=usuario)
+
+
+@app.route("/deletar_usuario/<int:id>")
+@login_required
+def deletar_usuario(id):
+    usuario = Usuario.query.get(id)
+    return render_template('deletar_usuario.html', usuario=usuario)
+
+
+@app.route("/delete_user/<int:id>")
+@login_required
+def delete_user(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        db.session.delete(usuario)
+        db.session.commit()
+        # print('Usuário apagado com sucesso! ')
+        return redirect(url_for('usuarios_cadastrados'))
+    # print('Não existe esse ID')
+    return redirect(url_for('usuarios_cadastrados'))
+
+
+@app.route("/bloquear_usuario/<int:id>")
+@login_required
+def bloquear_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.bloquear_usuario()
+        # print('Usuário Bloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/desbloquear_usuario/<int:id>")
+@login_required
+def desbloquear_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.desbloquear_usuario()
+        # print('Usuário desbloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/resetar_usuario/<int:id>")
+@login_required
+def resetar_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.resetar_usuario()
+        # print('Usuário desbloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/recuperar_senha_email/<int:id>", methods=['GET', 'POST'])
+@login_required
+def recuperar_senha_email(id):
+    usuario = Usuario.query.get(id)
+    if request.method == 'POST':
+        usuario.senha = request.form['senha']
+        db.session.commit()
+        usuario.alterar_recuperou_senha()
+        return render_template("index.html")
+    return render_template("login.html")
+
+
+@app.route("/alterar_senha", methods=['GET', 'POST'])
+def alterar_senha():
+    if request.method == 'POST':
+        usuarios = Usuario.query.all()
+        for usuario in usuarios:
+            if usuario.email == request.form['email']:
+                msg = usuario.recuperar_senha()
+                return render_template('mensagens_erro.html', msg=msg)
+        return render_template('mensagens_erro.html', msg='E-mail não localizado!')
+    return redirect(url_for('login'))
+
+
+# @app.route("/mensagens_erro")
+# def mensagens_erro():
+#     return render_template('mensagens_erro.html')
+
+@app.route("/op_caixa")
+@login_required
+def op_caixa():
+    return render_template('op_caixa.html')
+
+
+@app.route("/add_produto", methods=['GET', 'POST'])
+@login_required
+def add_produto():
+    if request.method == 'POST':
+        produtos = Produto.query.all()
+        for p in produtos:
+            if p.cod_barras == request.form['cod_barras'] or p.descricao_prod == request.form['descricao_prod'] and p.id_marca_id == int(request.form['id_marca']):
+                print('Esse código ou produto já existe!!!')
+                return redirect(url_for('produtos_cadastrados'))
+        produto = Produto(request.form['cod_barras'], request.form['descricao_prod'], request.form['quant_prod'], request.form['quant_min'],
+                          request.form['quant_max'], str(request.form['preco_custo']).replace(",", "."), str(request.form['preco_venda']).replace(",", "."), request.form['id_categoria'], request.form['id_marca'], request.form['id_medida'])
+        db.session.add(produto)
+        db.session.commit()
+        return redirect(url_for('produtos_cadastrados'))
+    return redirect(url_for('add_produto_full'))
+
+
+@app.route("/edit_produto/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_produto(id):
+    produto = Produto.query.get(id)
+    if request.method == 'POST':
+        produto.cod_barras = request.form['cod_barras']
+        produto.descricao_prod = request.form['descricao_prod']
+        produto.quant_prod = request.form['quant_prod']
+        produto.quant_min = request.form['quant_min']
+        produto.quant_max = request.form['quant_max']
+        produto.preco_custo = str(
+            request.form['preco_custo']).replace(",", ".")
+        produto.preco_venda = str(
+            request.form['preco_venda']).replace(",", ".")
+        db.session.commit()
+        return redirect(url_for('produtos_cadastrados'))
+    return render_template('edit_produto.html', produtos=produto)
+
+
+@app.route("/produtos_cadastrados")
+@login_required
+def produtos_cadastrados():
+    produtos = Produto.query.all()
+    for p in produtos:
+        categoria = Categoria.query.get(p.id_categoria_id)
+        marca = Marca.query.get(p.id_marca_id)
+        medida = Medida.query.get(p.id_medida_id)
+        p.nome_categoria = categoria.categoria_produto
+        p.nome_marca = marca.marca_produto
+        p.nome_medida = medida.medida_produto
+    return render_template("produtos_cadastrados.html", produtos=produtos)
+
+
+@app.route("/deletar_produto/<int:id>")
+@login_required
+def deletar_produto(id):
+    produto = Produto.query.get(id)
+    return render_template('deletar_produto.html', produtos=produto)
+
+
+@app.route("/delete/<int:id>")
+@login_required
+def delete(id):
+    produto = Produto.query.get(id)
+    db.session.delete(produto)
+    db.session.commit()
+    return redirect(url_for('produtos_cadastrados'))
+
+
+@app.route("/add_produto_full")
+@login_required
+def add_produto_full():
+    categorias = Categoria.query.all()
+    marcas = Marca.query.all()
+    medidas = Medida.query.all()
+    return render_template('add_produto.html', categorias=categorias, marcas=marcas, medidas=medidas)
+
+
+@app.route("/add_categoria", methods=['GET', 'POST'])
+@login_required
+def add_categoria():
+    if request.method == 'POST':
+        categorias = Categoria.query.all()
+        for c in categorias:
+            if c.categoria_produto == request.form['categoria_produto']:
+                return redirect(url_for('produtos_cadastrados'))
+        categoria = Categoria(request.form['categoria_produto'])
+        db.session.add(categoria)
+        db.session.commit()
+        return redirect(url_for('add_produto'))
+
+
+@app.route("/add_marca", methods=['GET', 'POST'])
+@login_required
+def add_marca():
+    if request.method == 'POST':
+        marcas = Marca.query.all()
+        for m in marcas:
+            if m.marca_produto == request.form['marca_produto']:
+                return redirect(url_for('produtos_cadastrados'))
+        marca = Marca(request.form['marca_produto'])
+        db.session.add(marca)
+        db.session.commit()
+        return redirect(url_for('add_produto'))
+    return redirect(url_for('add_produto'))
+
+
+@app.route("/add_medida", methods=['GET', 'POST'])
+@login_required
+def add_medida():
+    if request.method == 'POST':
+        medidas = Medida.query.all()
+        for m in medidas:
+            if m.medida_produto == request.form['medida_produto']:
+                return redirect(url_for('produtos_cadastrados'))
+        medida = Medida(request.form['medida_produto'])
+        db.session.add(medida)
+        db.session.commit()
+        return redirect(url_for('add_produto'))
+    return redirect(url_for('add_produto'))
+
+
+'''
 print("# ********************** TESTES NÍVEL DE ACESSO ********************** #")
 # nivel_acesso
 # admin = NivelAcesso('admin')  # ID 1
@@ -88,19 +357,21 @@ print('ADMINISTRADOR: ', admin)
 print('ADMINISTRADOR: ', admin.nivel_acesso)
 
 
-# op_caixa = NivelAcesso('op_caixa')  # ID 2
+# op_caixa_01 = NivelAcesso('op_caixa')  # ID 2
 # db.session.add(op_caixa)
 # db.session.commit()
-op_caixa = NivelAcesso.query.get(2)
-print('OPERADOR DE CAIXA: ', op_caixa)
-print('OPERADOR DE CAIXA: ', op_caixa.nivel_acesso)
-
+op_caixa_01 = NivelAcesso.query.get(2)
+print('OPERADOR DE CAIXA: ', op_caixa_01)
+print('OPERADOR DE CAIXA: ', op_caixa_01.nivel_acesso)
+op_caixa_01
 print(100 * '*')
 print()
 print()
 print()
+'''
 
 
+'''
 print("# ********************** TESTES USUARIO ********************** #")
 # nome, telefone, email, login, senha, id_nivel_acesso_id=2
 
@@ -118,13 +389,23 @@ print('USUÁRIO 01 LOGIN: ', user_maria.login)
 print('USUÁRIO 01 SENHA: ', user_maria.senha)
 print('USUÁRIO 01 STATUS: ', user_maria.status)
 print('USUÁRIO 01 ID_NIVEL_ACESSO_ID: ', user_maria.id_nivel_acesso_id)
+# BLOQUEAR USUÁRIO
+user_maria.bloquear_usuario()
+print('USUÁRIO 01 STATUS BLOQUEADO: ', user_maria.status)
+# DESBLOQUEAR USUÁRIO
+user_maria.desbloquear_usuario()
+print('USUÁRIO 01 STATUS DESBLOQUEADO', user_maria.status)
+# VERIFICAR STATUS USUÁRIO
+print('VERIFICAR STATUS USUÁRIO: ', user_maria.verificar_status())
+# ALTERAÇÃO DE SENHA
+print('ALTERAÇÃO DE SENHA: ', user_maria.alterar_senha('123@Orfeu', '123'))
 
 
 print(100 * '*')
 
-# op_caixa = NivelAcesso.query.get(2)
+# op_caixa_01 = NivelAcesso.query.get(2)
 # user_joao = Usuario('Joao', '1199992222', 'joao@email.com',
-#                     'joao.joao', '123', op_caixa.id)
+#                     'joao.joao', '123', op_caixa_01.id)
 
 # db.session.add(user_joao)
 # db.session.commit()
@@ -137,6 +418,15 @@ print('USUÁRIO 02 LOGIN: ', user_joao.login)
 print('USUÁRIO 02 SENHA: ', user_joao.senha)
 print('USUÁRIO 02 STATUS: ', user_joao.status)
 print('USUÁRIO 02 ID_NIVEL_ACESSO_ID: ', user_joao.id_nivel_acesso_id)
+
+# BLOQUEAR USUÁRIO
+user_joao.bloquear_usuario()
+print('USUÁRIO 02 STATUS BLOQUEADO: ', user_joao.status)
+# BLOQUEAR USUÁRIO
+user_joao.bloquear_usuario()
+print('USUÁRIO 02 STATUS BLOQUEADO', user_joao.status)
+# VERIFICAR STATUS USUÁRIO
+print('VERIFICAR STATUS USUÁRIO: ', user_joao.verificar_status())
 
 print(100 * '*')
 print()
@@ -561,7 +851,6 @@ print()
 print()
 
 
-
 print("# ********************** TESTES JUSTIFICATIVA ********************** #")
 
 
@@ -602,7 +891,6 @@ justificativa_06 = Justificativa.query.get(6)
 justificativa_07 = Justificativa.query.get(7)
 
 
-
 print('JUSTIFICATIVA ID: ', justificativa_01)
 print('JUSTIFICATIVA NOME: ', justificativa_01.justificativa)
 print(100 * '*')
@@ -634,7 +922,6 @@ print(100 * '*')
 print()
 print()
 print()
-
 
 
 print("# ********************** TESTES MOVIMENTACAO CAIXA ********************** #")
@@ -704,394 +991,4 @@ print()
 print()
 print()
 
-''''''
-
-
-@login_manager.user_loader
-def get_user(user_id):
-    return Usuario.query.filter_by(id=user_id).first()
-
-
 '''
-    A linha abaixo direciona o usuário para tela de login, caso ele não tenha
-    logado, ou seja, tenha tentado acessar o conteúdo diretamente.
-'''
-login_manager.login_view = "login"
-
-'''
-    A linha abaixo nos permite personalizar a mensagem que o usuário receberá
-    após tentar acessar uma página privada sem logar.
-'''
-
-login_manager.login_message = u"Você precisa logar para acessar o conteúdo da página!"
-
-
-login_manager.session_protection = "strong"
-
-# Preciso colocar outro conteúdo na página index.
-
-
-@app.route("/")
-@app.route("/index")
-def index():
-    return render_template("index.html")
-
-
-# @app.route('/login', methods=["GET", "POST"]) # --- BKP ---
-# def login():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         usuario = Usuario.query.filter_by(
-#             nome_usuario=form.nome_usuario.data).first()
-#         if usuario and usuario.verify_password(form.senha_usuario.data):
-#             if form.lembrar_me.data:
-#                 login_user(usuario, remember=True, duration=timedelta(days=2))
-#             else:
-#                 login_user(usuario)
-#             return render_template('index.html')
-#         else:
-#             flash("Dados inválidos!")
-#             return redirect(url_for('login'))
-#     return render_template('login.html', form=form)
-@app.route('/login', methods=["GET", "POST"])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        usuario = Usuario.query.filter_by(
-            login=form.login.data).first()
-        if usuario and usuario.descriptografar_senha(form.senha.data):
-            if form.lembrar_me.data:
-                login_user(usuario, remember=True, duration=timedelta(days=2))
-            else:
-                login_user(usuario)
-            return render_template('index.html')
-        else:
-            flash("Dados inválidos!")
-            return redirect(url_for('login'))
-    return render_template('login.html', form=form)
-
-
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
-
-# @app.route("/nivel_acesso")  # TESTE
-# def nivel_acesso():
-#     niveis_acesso = NivelAcesso.query.all()
-#     lista = []
-#     for nivel in niveis_acesso:
-#         lista.append(nivel.nivel_acesso)
-#     print(lista)
-#     return str(lista)
-
-
-@app.route("/usuarios_cadastrados")
-@login_required
-def usuarios_cadastrados():
-    usuarios = Usuario.query.all()
-    return render_template("usuarios_cadastrados.html", usuarios=usuarios)
-
-
-@app.route("/add_usuario", methods=['GET', 'POST'])
-@login_required
-def add_usuario():
-    if request.method == 'POST':
-        usuarios = Usuario.query.all()
-        for u in usuarios:
-            #  Se o cpf já existir mandar de volta para o index
-            if u.cpf == request.form['cpf']:
-                return redirect(url_for('index'))
-        usuario = Usuario(request.form['nome_usuario'], request.form['senha_usuario'],
-                          request.form['nome'],
-                          request.form['cpf'], request.form['nivel_acesso'])
-        db.session.add(usuario)
-        db.session.commit()
-        return redirect(url_for('usuarios_cadastrados'))
-    return render_template('add_usuario.html')
-
-
-@app.route("/edit_usuario/<int:id>", methods=['GET', 'POST'])
-@login_required
-def edit_usuario(id):
-    usuario = Usuario.query.get(id)
-    if request.method == 'POST':
-        usuario.nome_usuario = request.form['nome_usuario']
-        usuario.senha_usuario = usuario.alter_password(
-            request.form['senha_usuario'])
-        usuario.nome = request.form['nome']
-        usuario.cpf = request.form['cpf']
-        usuario.nivel_acesso = request.form['nivel_acesso']
-        db.session.commit()
-        return usuarios_cadastrados()
-    return render_template('edit_usuario.html', usuario=usuario)
-
-
-@app.route("/deletar_usuario/<int:id>")
-@login_required
-def deletar_usuario(id):
-    usuario = Usuario.query.get(id)
-    return render_template('deletar_usuario.html', usuario=usuario)
-
-
-@app.route("/delete_user/<int:id>")
-@login_required
-def delete_user(id):
-    usuario = Usuario.query.get(id)
-    db.session.delete(usuario)
-    db.session.commit()
-    return redirect(url_for('usuarios_cadastrados'))
-
-
-@app.route("/op_caixa")
-@login_required
-def op_caixa():
-    return render_template('op_caixa.html')
-
-
-@app.route("/add_produto", methods=['GET', 'POST'])
-@login_required
-def add_produto():
-    if request.method == 'POST':
-        produtos = Produto.query.all()
-        for p in produtos:
-            if p.cod_barras == request.form['cod_barras'] or p.descricao_prod == request.form['descricao_prod'] and p.id_marca_id == int(request.form['id_marca']):
-                print('Esse código ou produto já existe!!!')
-                return redirect(url_for('produtos_cadastrados'))
-        produto = Produto(request.form['cod_barras'], request.form['descricao_prod'], request.form['quant_prod'], request.form['quant_min'],
-                          request.form['quant_max'], str(request.form['preco_custo']).replace(",", "."), str(request.form['preco_venda']).replace(",", "."), request.form['id_categoria'], request.form['id_marca'], request.form['id_medida'])
-        db.session.add(produto)
-        db.session.commit()
-        return redirect(url_for('produtos_cadastrados'))
-    return redirect(url_for('add_produto_full'))
-
-
-@app.route("/edit_produto/<int:id>", methods=['GET', 'POST'])
-@login_required
-def edit_produto(id):
-    produto = Produto.query.get(id)
-    if request.method == 'POST':
-        produto.cod_barras = request.form['cod_barras']
-        produto.descricao_prod = request.form['descricao_prod']
-        produto.quant_prod = request.form['quant_prod']
-        produto.quant_min = request.form['quant_min']
-        produto.quant_max = request.form['quant_max']
-        produto.preco_custo = str(
-            request.form['preco_custo']).replace(",", ".")
-        produto.preco_venda = str(
-            request.form['preco_venda']).replace(",", ".")
-        db.session.commit()
-        return redirect(url_for('produtos_cadastrados'))
-    return render_template('edit_produto.html', produtos=produto)
-
-
-@app.route("/produtos_cadastrados")
-@login_required
-def produtos_cadastrados():
-    produtos = Produto.query.all()
-    for p in produtos:
-        categoria = Categoria.query.get(p.id_categoria_id)
-        marca = Marca.query.get(p.id_marca_id)
-        medida = Medida.query.get(p.id_medida_id)
-        p.nome_categoria = categoria.categoria_produto
-        p.nome_marca = marca.marca_produto
-        p.nome_medida = medida.medida_produto
-    return render_template("produtos_cadastrados.html", produtos=produtos)
-
-
-@app.route("/deletar_produto/<int:id>")
-@login_required
-def deletar_produto(id):
-    produto = Produto.query.get(id)
-    return render_template('deletar_produto.html', produtos=produto)
-
-
-@app.route("/delete/<int:id>")
-@login_required
-def delete(id):
-    produto = Produto.query.get(id)
-    db.session.delete(produto)
-    db.session.commit()
-    return redirect(url_for('produtos_cadastrados'))
-
-
-@app.route("/add_produto_full")
-@login_required
-def add_produto_full():
-    categorias = Categoria.query.all()
-    marcas = Marca.query.all()
-    medidas = Medida.query.all()
-    return render_template('add_produto.html', categorias=categorias, marcas=marcas, medidas=medidas)
-
-
-@app.route("/add_categoria", methods=['GET', 'POST'])
-@login_required
-def add_categoria():
-    if request.method == 'POST':
-        categorias = Categoria.query.all()
-        for c in categorias:
-            if c.categoria_produto == request.form['categoria_produto']:
-                return redirect(url_for('produtos_cadastrados'))
-        categoria = Categoria(request.form['categoria_produto'])
-        db.session.add(categoria)
-        db.session.commit()
-        return redirect(url_for('add_produto'))
-
-
-@app.route("/add_marca", methods=['GET', 'POST'])
-@login_required
-def add_marca():
-    if request.method == 'POST':
-        marcas = Marca.query.all()
-        for m in marcas:
-            if m.marca_produto == request.form['marca_produto']:
-                return redirect(url_for('produtos_cadastrados'))
-        marca = Marca(request.form['marca_produto'])
-        db.session.add(marca)
-        db.session.commit()
-        return redirect(url_for('add_produto'))
-    return redirect(url_for('add_produto'))
-
-
-@app.route("/add_medida", methods=['GET', 'POST'])
-@login_required
-def add_medida():
-    if request.method == 'POST':
-        medidas = Medida.query.all()
-        for m in medidas:
-            if m.medida_produto == request.form['medida_produto']:
-                return redirect(url_for('produtos_cadastrados'))
-        medida = Medida(request.form['medida_produto'])
-        db.session.add(medida)
-        db.session.commit()
-        return redirect(url_for('add_produto'))
-    return redirect(url_for('add_produto'))
-
-
-'''
-@app.route("/exibir_categorias")
-@login_required
-def exibir_categorias():
-    categorias = Categoria.query.all()
-    return render_template('add_produto.html', categorias=categorias)
-
-
-@app.route("/categorias_cadastradas")
-@login_required
-def categorias_cadastradas():
-    categorias = Categoria.query.all()
-    return render_template('categorias_cadastradas.html', categorias=categorias)
-
-
-@app.route("/teste_add_categoria")
-def teste_add_categoria():
-    categoria = Categoria('Teste Categ')
-    db.session.add(categoria)
-    db.session.commit()
-    return "Ok"
-
-
-@app.route("/teste_add_marca")
-def teste_add_marca():
-    marca = Marca('Nestle')
-    db.session.add(marca)
-    db.session.commit()
-    return "Ok"
-
-
-@app.route("/teste_add_medida")
-def teste_add_medida():
-    medida = Medida('Litro')
-    db.session.add(medida)
-    db.session.commit()
-    return "Ok"
-
-
-@app.route("/teste_add_produto")
-def teste_add_produto():
-    produto = Produto(30, '01256666', 'Espaguete 007', 60, 20, 250, 1.60, 3.90)
-    db.session.add(produto)
-    db.session.commit()
-    return "Ok"
-
-
-@app.route("/teste_add_produto_full")
-def teste_add_produto_full():
-    categoria = Categoria('Bebidas 05')
-    db.session.add(categoria)
-    db.session.commit()
-    # marca = Marca('Camil')
-    # db.session.add(marca)
-    # medida = Medida('KG')
-    # db.session.add(medida)
-    produto = Produto('0155567121004', 'Teste Bebida 05',
-                      60, 20, 250, 1.60, 4.50)
-    db.session.add(produto)
-    db.session.commit()
-    return "Ok"
-
-#     produto = Produto(1, '1234567891001', 'Feijão', 100, 50, 250, 5.25, 9.75, 1, 1, 1)
-#     produto = Produto(2, '1234567891002', 'Arroz', 120, 50, 300, 2.70, 5.50, 1, 1, 1)
-#     produto = Produto(3, '1234567891003', 'Espaguete', 60, 20, 250, 1.60, 3.90)
-# select * from categoria;
-# select * from marca;
-# select * from medida;
-# select * from produto;
-'''
-
-'''  DESCOMENTAR ESSA PARTE DO CÓDIGO PARA CRIAR O O PRIMEIRO USUÁRIO
-@app.route("/teste/<info>")
-@app.route("/teste", defaults={"info": None})
-def teste(info):
-    teste_ = Usuario('marcio', '007', 'Marcio', '09419076432', 'adm')
-    db.session.add(teste_)
-    db.session.commit()
-    return "Ok"
-
-
-
-@app.route("/teste")
-def teste():
-    teste_ = Usuario('marcio', '007', 'Marcio', '09419076432', 'adm')
-    db.session.add(teste_)
-    db.session.commit()
-    return "Ok"
-
-
-@app.route("/ler_produto/<info>")
-@app.route("/ler_produto", defaults={"info": None})
-def ler_produto(info):
-    # usuario_ = Usuario.query.filter_by(nome_usuario="marcio.teste").all()
-    usuario_ = Usuario.query.filter_by(nome_usuario="marcio.teste1").first()
-    print(usuario_.senha_usuario)
-    return usuario_.senha_usuario
-'''
-
-
-# @app.route("/teste")
-# def teste():
-#     teste_ = Usuario('marcio1', '007', 'Marcio1', '09419016432', 'Op. Caixa')
-#     db.session.add(teste_)
-#     db.session.commit()
-#     return "Ok"
-
-
-# @app.route('/recebe_dados_jquery', methods=['POST'])
-# def receive_data():
-#     if request.method == 'POST':
-#         dados = request.form['meus_dados']
-#         print(dados)
-
-
-# @app.route('/testes_v1')
-# def testes_v1():
-#     return render_template('testes_v1.html')
-
-
-# @app.route('/signUpUser', methods=['POST'])
-# def signUpUser():
-#     if request.method == 'POST':
-#         user = request.form['username']
-#         password = request.form['password']
-#         return json.dumps({'status': 'OK', 'user': user, 'pass': password})

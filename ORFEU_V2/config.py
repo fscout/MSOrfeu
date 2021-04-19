@@ -2,8 +2,8 @@ DEBUG = True  # Habilitando o debug, para recebermos as informações de debugs,
 # assim não precisamos reiniciar toda hora o servidor
 POSTGRES = {
     'user': 'postgres',  # Deixar dessa forma
-    'pw': '123@Impacta', # Colocar a senha do banco de dados
-    'db': 'orfeu', # Colocar o nome do banco de dados
+    'pw': '123@Impacta',  # Colocar a senha do banco de dados
+    'db': 'orfeu',  # Colocar o nome do banco de dados
     'host': 'localhost',  # Deixar dessa forma
     'port': '5432',  # Deixar dessa forma
 }

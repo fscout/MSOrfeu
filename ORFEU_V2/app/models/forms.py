@@ -10,4 +10,3 @@ class LoginForm(FlaskForm):
     login = StringField('login', validators=[DataRequired()])
     senha = PasswordField('senha', validators=[DataRequired()])
     lembrar_me = BooleanField('lembrar_me')
- 
