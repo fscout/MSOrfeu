@@ -392,10 +392,11 @@ def signUpUser():
 
 
 
-@app.route("/teste/<info>")
+'''@app.route("/teste/<info>")
 @app.route("/teste", defaults={"info": None})
 def teste(info):
     teste_ = Usuario('Teste', '007', 'Teste', '159', 'Op. Caixa')
     db.session.add(teste_)
     db.session.commit()
     return "Ok"
+'''

@@ -91,13 +91,12 @@ class Usuario(db.Model):  # Herdando da classe Model
 ''''''
 
 
-
-          <select size="1" name="categorias">
-            <option value="0">Selecione...</option>
+    <select size="1" name="categorias">
+    <option value="0">Selecione...</option>
             {% for c in categorias %}
-            <option value={{c.id}}>{{c.categoria}}</option>
-            {% endfor %}
-          </select>
+        <option value={{c.id}}>{{c.categoria}}</option>
+        {% endfor %}
+    </select>
 
 
 

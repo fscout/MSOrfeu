@@ -1,47 +1,50 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
 
+  <nav>
+    <img src="" alt="">
+  </nav>
 
-{% block title %}
-{{ super() }} - Login
-{% endblock title %}
-    
+  <div class="container fundo">
+    <form class="container principal" method="POST">
+      <h1 class="texto-login">Login</h1>
+      <div class="divisao"></div>
+      {{ form.csrf_token }}
+      <div class="nome">
+        {{ form.nome_usuario(class="form-control", placeholder="Seu Usuário")}}
+      </div>
 
-{% block main %}
+      <div class="senha">
+        {{ form.senha_usuario(class="form-control", placeholder="Sua Senha")}}
+      </div>
+      <button type="submit" class="btn-enter">Logar</button>
+      <div class="link-senha">
+        <label>
+          {{ form.lembrar_me }} Lembrar-me
+        </label>
+      </div>
 
-<div class="container" align="center">
-    <h1>Login</h1>
-    <div class="col-md-6 col-offset-3">
-    <form action="" method="POST">
-        {{ form.csrf_token }}
-        <div class="form-group">
-            {{ form.nome_usuario(class="form-control", placeholder="Seu Usuário")}}
-        </div>
-
-        <div class="form-group">
-            {{ form.senha_usuario(class="form-control", placeholder="Sua Senha")}}
-        </div>
-        <div class="checkbox">
-            <label>
-                {{ form.lembrar_me }} Lembrar-me
-            </label>
-
-            <button type="submit" class="btn btn-default">Logar</button>
-        </div>
+      <div class="dados-invalidos">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+      </div>
     </form>
-</div>
+  </div>
 
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
-
-</div>
-{% endblock main %}
-    
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
