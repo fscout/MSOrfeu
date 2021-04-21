@@ -14,7 +14,7 @@ function formataMoeda() {
 function msg() {
     alert("Apagado com sucesso!")
 }
-
+ 
 
 function add_categoria()
 {
@@ -88,3 +88,8 @@ function envia_dados() {
 //     });
 // }
 
+
+
+function msg_produto_cadastrado(){
+    alert("Produto já cadastrado!")
+}

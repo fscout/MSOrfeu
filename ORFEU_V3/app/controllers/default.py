@@ -209,7 +209,8 @@ def alterar_senha_2(id):
     if request.method == 'POST':
         usuario = Usuario.query.get(id)
         if usuario:
-            usuario.alterar_senha_provisoria(usuario.senha, request.form['senha'])
+            usuario.alterar_senha_provisoria(
+                usuario.senha, request.form['senha'])
             usuario.alterar_recuperou_senha()
             flash("Senha alterada!")
             return redirect(url_for('login'))
@@ -237,21 +238,29 @@ def op_caixa():
     return render_template('op_caixa.html')
 
 
+# codigo_barras, descricao_produto, quantidade_produto,
+#                  quantidade_minima, preco_custo,
+#                  preco_venda, quantidade_maxima=None, peso_liquido=None,
+#                  peso_bruto=None, id_categoria_id=1, id_marca_id=1,
+#                  id_medida_id=1
+
 @app.route("/add_produto", methods=['GET', 'POST'])
 @login_required
 def add_produto():
     if request.method == 'POST':
         produtos = Produto.query.all()
         for p in produtos:
-            if p.cod_barras == request.form['cod_barras'] or p.descricao_prod == request.form['descricao_prod'] and p.id_marca_id == int(request.form['id_marca']):
-                print('Esse código ou produto já existe!!!')
-                return redirect(url_for('produtos_cadastrados'))
-        produto = Produto(request.form['cod_barras'], request.form['descricao_prod'], request.form['quant_prod'], request.form['quant_min'],
-                          request.form['quant_max'], str(request.form['preco_custo']).replace(",", "."), str(request.form['preco_venda']).replace(",", "."), request.form['id_categoria'], request.form['id_marca'], request.form['id_medida'])
+            if p.codigo_barras == request.form['codigo_barras'] or p.descricao_produto == request.form['descricao_produto'] and p.id_marca_id == int(request.form['id_marca']):
+                flash("Esse código ou produto já existe!!!")
+                # print('Esse código ou produto já existe!!!')
+                return redirect(url_for('add_produto_full'))
+        produto = Produto(request.form['codigo_barras'], request.form['descricao_produto'], request.form['quantidade_produto'], request.form['quantidade_minima'], str(request.form['preco_custo']).replace(",", "."), str(request.form['preco_venda']).replace(
+            ",", "."), request.form['quantidade_maxima'], float(request.form['peso_liquido'].replace(",", ".")), float(request.form['peso_bruto'].replace(",", ".")), request.form['id_categoria'], request.form['id_marca'], request.form['id_medida'])
         db.session.add(produto)
         db.session.commit()
+        flash("Produto cadastrado com sucesso.")
         return redirect(url_for('produtos_cadastrados'))
-    return redirect(url_for('add_produto_full'))
+    return redirect(url_for('produtos_cadastrados'))
 
 
 @app.route("/edit_produto/<int:id>", methods=['GET', 'POST'])
@@ -259,18 +268,57 @@ def add_produto():
 def edit_produto(id):
     produto = Produto.query.get(id)
     if request.method == 'POST':
-        produto.cod_barras = request.form['cod_barras']
-        produto.descricao_prod = request.form['descricao_prod']
-        produto.quant_prod = request.form['quant_prod']
-        produto.quant_min = request.form['quant_min']
-        produto.quant_max = request.form['quant_max']
-        produto.preco_custo = str(
-            request.form['preco_custo']).replace(",", ".")
-        produto.preco_venda = str(
-            request.form['preco_venda']).replace(",", ".")
-        db.session.commit()
+        if produto:
+            produtos = Produto.query.all()
+            for p in produtos:
+                if p.id != produto.id:
+                    if p.codigo_barras == request.form['codigo_barras'] or p.descricao_produto == request.form['descricao_produto'] and p.id_marca_id == int(request.form['id_marca_id']):
+                        print('Esse código ou produto já existe!!!')
+                        return redirect(url_for('produtos_cadastrados'))
+
+            produto.codigo_barras = request.form['codigo_barras']
+            produto.descricao_produto = request.form['descricao_produto']
+            produto.quantidade_produto = request.form['quantidade_produto']
+            produto.quantidade_minima = request.form['quantidade_minima']
+            produto.quantidade_maxima = request.form['quantidade_maxima']
+
+            produto.peso_liquido = str(
+                request.form['peso_liquido']).replace(",", ".")
+
+            produto.peso_bruto = str(
+                request.form['peso_bruto']).replace(",", ".")
+
+            produto.preco_custo = str(
+                request.form['preco_custo']).replace(",", ".")
+
+            produto.preco_venda = str(
+                request.form['preco_venda']).replace(",", ".")
+
+            produto.id_categoria_id = request.form['id_categoria']
+            produto.id_marca_id = request.form['id_marca']
+            produto.id_medida_id = request.form['id_medida']
+
+            db.session.commit()
+
+            print("Produto alterado")
+            return redirect(url_for('produtos_cadastrados'))
+
+        print('Não existe esse produto método POST!!!')
         return redirect(url_for('produtos_cadastrados'))
-    return render_template('edit_produto.html', produtos=produto)
+    if produto:
+        categorias = Categoria.query.all()
+        marcas = Marca.query.all()
+        medidas = Medida.query.all()
+        # Verificar para criar uma função para as linhas abaixo pois estão se repetindo em outras partes do código
+        categoria = Categoria.query.get(produto.id_categoria_id)
+        marca = Marca.query.get(produto.id_marca_id)
+        medida = Medida.query.get(produto.id_medida_id)
+        produto.nome_categoria = categoria.nome_categoria
+        produto.nome_marca = marca.nome_marca
+        produto.nome_medida = medida.nome_medida
+        return render_template('edit_produto.html', produto=produto, categorias=categorias, marcas=marcas, medidas=medidas)
+    print('Não existe esse produto método GET!!!')
+    return redirect(url_for('produtos_cadastrados'))
 
 
 @app.route("/produtos_cadastrados")
@@ -281,9 +329,9 @@ def produtos_cadastrados():
         categoria = Categoria.query.get(p.id_categoria_id)
         marca = Marca.query.get(p.id_marca_id)
         medida = Medida.query.get(p.id_medida_id)
-        p.nome_categoria = categoria.categoria_produto
-        p.nome_marca = marca.marca_produto
-        p.nome_medida = medida.medida_produto
+        p.nome_categoria = categoria.nome_categoria
+        p.nome_marca = marca.nome_marca
+        p.nome_medida = medida.nome_medida
     return render_template("produtos_cadastrados.html", produtos=produtos)
 
 
@@ -291,7 +339,14 @@ def produtos_cadastrados():
 @login_required
 def deletar_produto(id):
     produto = Produto.query.get(id)
-    return render_template('deletar_produto.html', produtos=produto)
+    # Criar uma função para fazer as linha de código abaixo, pois elas se repetem em mais de uma rota
+    categoria = Categoria.query.get(produto.id_categoria_id)
+    marca = Marca.query.get(produto.id_marca_id)
+    medida = Medida.query.get(produto.id_medida_id)
+    produto.nome_categoria = categoria.nome_categoria
+    produto.nome_marca = marca.nome_marca
+    produto.nome_medida = medida.nome_medida
+    return render_template('deletar_produto.html', produto=produto)
 
 
 @app.route("/delete/<int:id>")
@@ -318,9 +373,9 @@ def add_categoria():
     if request.method == 'POST':
         categorias = Categoria.query.all()
         for c in categorias:
-            if c.categoria_produto == request.form['categoria_produto']:
+            if c.nome_categoria == request.form['nome_categoria']:
                 return redirect(url_for('produtos_cadastrados'))
-        categoria = Categoria(request.form['categoria_produto'])
+        categoria = Categoria(request.form['nome_categoria'])
         db.session.add(categoria)
         db.session.commit()
         return redirect(url_for('add_produto'))
@@ -332,9 +387,9 @@ def add_marca():
     if request.method == 'POST':
         marcas = Marca.query.all()
         for m in marcas:
-            if m.marca_produto == request.form['marca_produto']:
+            if m.nome_marca == request.form['nome_marca']:
                 return redirect(url_for('produtos_cadastrados'))
-        marca = Marca(request.form['marca_produto'])
+        marca = Marca(request.form['nome_marca'])
         db.session.add(marca)
         db.session.commit()
         return redirect(url_for('add_produto'))
@@ -347,9 +402,9 @@ def add_medida():
     if request.method == 'POST':
         medidas = Medida.query.all()
         for m in medidas:
-            if m.medida_produto == request.form['medida_produto']:
+            if m.nome_medida == request.form['nome_medida']:
                 return redirect(url_for('produtos_cadastrados'))
-        medida = Medida(request.form['medida_produto'])
+        medida = Medida(request.form['nome_medida'])
         db.session.add(medida)
         db.session.commit()
         return redirect(url_for('add_produto'))
@@ -381,7 +436,6 @@ print()
 print()
 
 '''
-
 
 
 '''

@@ -16,21 +16,22 @@
 
 <div class="container hider" align="center"> -->
 
-
 <div class="container" align="center">
 
     <h1 align="center" class="fill2" >Produtos Cadastrados</h1>
     <table border="1" width="70%" class="table table-striped">
         <thead>
             <tr>
-                <th class="fill2">Código</th>
+                <th class="fill2">Código Barras</th>
                 <th class="fill2">Descricao</th>
                 <th class="fill2">Quantidade</th>
                 <th class="fill2">Quant. Mínima</th>
                 <th class="fill2">Quant. Máxima</th>
+                <th class="fill2">Peso Liquido</th>
+                <th class="fill2">Peso Bruto</th>
                 <th class="fill2">Preço Custo</th>
                 <th class="fill2">Preço Venda</th>
-                <th class="fill2">Categoria</th>
+                <th class="fill2">Categorias</th>
                 <th class="fill2">Marca</th>
                 <th class="fill2">Medida</th>
             </tr>
@@ -38,11 +39,13 @@
         <tbody>
             {% for p in produtos %}
             <tr>
-                <td>{{p.cod_barras}}</td>
-                <td>{{p.descricao_prod}}</td>
-                <td>{{p.quant_prod}}</td>
-                <td>{{p.quant_min}}</td>
-                <td>{{p.quant_max}}</td>
+                <td>{{p.codigo_barras}}</td>
+                <td>{{p.descricao_produto}}</td>
+                <td>{{p.quantidade_produto}}</td>
+                <td>{{p.quantidade_minima}}</td>
+                <td>{{p.quantidade_maxima}}</td>
+                <td>{{p.peso_liquido}}</td>
+                <td>{{p.peso_bruto}}</td>
                 <td class="valor">{{p.preco_custo}}</td>
                 <td class="valor">{{p.preco_venda}}</td>
                 <td>{{p.nome_categoria}}</td>
@@ -56,6 +59,24 @@
             {% endfor %}
         </tbody>
     </table>
+
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        
+        {% if message %}
+          <p id="produto_cadastrado" class="hider">{{message}}</p>
+          <script>
+            produto_cadastrado = document.getElementById('produto_cadastrado')
+            alert(produto_cadastrado.innerText)
+          </script>
+        {% endif %}
+      {% endfor %} 
+      </ul>
+    {% endif %}
+  {% endwith %}
 
 </div>
 <!-- 

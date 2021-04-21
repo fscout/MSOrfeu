@@ -845,3 +845,31 @@ def ler_produto(info):
 #         user = request.form['username']
 #         password = request.form['password']
 #         return json.dumps({'status': 'OK', 'user': user, 'pass': password})
+
+
+
+@app.route("/edit_usuario/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_usuario(id):
+    usuario = Usuario.query.get(id)
+    if request.method == 'POST':
+        usuarios = Usuario.query.all()
+        for u in usuarios:
+            if u.id != usuario.id:
+                #  Se o email já existir mandar de volta para o index
+                if u.email == request.form['email']:
+                    # print('Esse e-mail já foi cadastrado')
+                    return redirect(url_for('index'))
+                #  Se o login já existir mandar de volta para o index
+                if u.login == request.form['login']:
+                    # print('Esse login já foi cadastrado')
+                    return redirect(url_for('index'))
+        usuario.nome = request.form['nome']
+        usuario.telefone = request.form['telefone']
+        usuario.email = request.form['email']
+        usuario.login = request.form['login']
+        usuario.senha = request.form['senha']
+        usuario.id_nivel_acesso_id = request.form['id_nivel_acesso_id']
+        db.session.commit()
+        return usuarios_cadastrados()
+    return render_template('edit_usuario.html', usuario=usuario)
