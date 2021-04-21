@@ -83,7 +83,7 @@ class Usuario(db.Model, UserMixin):
         # True = Recuperou - False = Não Recuperou.
         self.recuperou_senha = False
 
-    '''O método abaixo serve para criptografar a senha do usuário, fazendo com
+    '''O método abaixo serve para criptografar a senha do usuário, fazendo com que
     os dados dele estejam mais seguros'''
 
     def criptografar_senha(self, senha):
@@ -152,9 +152,9 @@ class Usuario(db.Model, UserMixin):
     def esqueci_senha(self):
         senha_provisoria = recuperacao_senha.gerar_senha_aleatoria()
         self.senha = self.criptografar_senha(senha_provisoria)
+        self.recuperou_senha = True
         db.session.add(self)
         db.session.commit()
-        self.recuperou_senha = True
         return recuperacao_senha.enviar_senha_email(self.email,
                                                     senha_provisoria)
 
@@ -162,7 +162,7 @@ class Usuario(db.Model, UserMixin):
     # estamos dizendo que o usuário recuperou a senha e com isso o sistema
     # redirecionará o usuário para alterar a senha provisória
     def alterar_recuperou_senha(self):
-        self.recuperou_senha = True
+        self.recuperou_senha = False
         db.session.add(self)
         db.session.commit()
         # return self.verificar_status()

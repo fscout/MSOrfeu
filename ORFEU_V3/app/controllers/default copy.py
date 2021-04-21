@@ -43,11 +43,11 @@ login_manager.session_protection = "strong"
 def index():
     return render_template("index.html")
 
+
 @app.route('/teste_login')
 def teste_login():
     usuario = Usuario.query.get(3)
     return str(usuario.descriptografar_senha('LyKUe6XD'))
-
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -56,20 +56,26 @@ def login():
         usuario = Usuario.query.filter_by(
             login=form.login.data).first()
         if usuario and usuario.descriptografar_senha(form.senha.data):
+            print('RESULT: ', usuario.status)
             if usuario.status:
+    
                 if usuario.recuperou_senha:
                     return render_template('alterar_senha_usuario.html', usuario=usuario)
+
                 if form.lembrar_me.data:
                     login_user(usuario, remember=True,
                                duration=timedelta(days=2))
+
                 else:
                     login_user(usuario)
+
                 return render_template('index.html')
             flash("Usuário encontra-se bloqueado!")
             return redirect(url_for('login'))
         else:
             flash("Dados inválidos!")
             return redirect(url_for('login'))
+
     return render_template('login.html', form=form)
 
 

@@ -1,3 +1,32 @@
+<!-- <p class="ocultar nivel">{{current_user.nivel_acesso}}</p>
+
+<div class="container hider" align="center"> -->
+
+
+
+    <!-- <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class NivelAcesso(db.Model):  # Herdando da classe Model
     __tablename__ = "nivel_acesso"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

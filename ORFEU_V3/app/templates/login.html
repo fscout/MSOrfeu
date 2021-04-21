@@ -11,6 +11,8 @@
 <div class="container" align="center">
     <h1>Login</h1>
     <div class="col-md-6 col-offset-3">
+
+  
     <form action="" method="POST">
         {{ form.csrf_token }}
         <div class="form-group">
@@ -41,6 +43,7 @@
   {% endif %}
 {% endwith %}
 
+
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#esqueciSenha">
         Esqueci a senha!
@@ -67,10 +70,11 @@
           <button type="submit" class="btn btn-primary">Enviar Senha</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
         </form>
+
+
       </div>
 </div>
 </div>
 </div>
 </div>
 {% endblock main %}
-    

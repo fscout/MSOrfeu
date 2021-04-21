@@ -14,7 +14,7 @@ def gerar_senha_aleatoria():
     senha = ''
     for i in range(tamanho):
         senha += choice(valores)
-    print(type(senha), "Senha = ", senha)
+    # print(type(senha), "Senha = ", senha)
     return senha
 
 
@@ -22,7 +22,8 @@ def enviar_senha_email(email, nova_senha):
     # E-mail que enviará a mensagem
     email_de = 'orfeu.bessa@gmail.com'
     # No terminal aplicar esse comando --> export EMAIL_PASSWORD='123@Orfeu'
-    email_senha = os.getenv('EMAIL_PASSWORD')
+    email_senha = '123@Orfeu'
+    # email_senha = os.getenv('EMAIL_PASSWORD')
     # print('TESTE SENHA', email_senha)
     email_smtp_server = 'smtp.gmail.com'
 

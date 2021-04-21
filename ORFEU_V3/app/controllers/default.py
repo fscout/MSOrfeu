@@ -57,7 +57,7 @@ def login():
             login=form.login.data).first()
         if usuario and usuario.descriptografar_senha(form.senha.data):
             if usuario.status:
-                if not usuario.recuperou_senha:
+                if usuario.recuperou_senha:
                     return render_template('alterar_senha_usuario.html', usuario=usuario)
                 if form.lembrar_me.data:
                     login_user(usuario, remember=True,
@@ -211,7 +211,8 @@ def alterar_senha_2(id):
         if usuario:
             usuario.alterar_senha_provisoria(usuario.senha, request.form['senha'])
             usuario.alterar_recuperou_senha()
-            return redirect(url_for('index'))
+            flash("Senha alterada!")
+            return redirect(url_for('login'))
     return render_template('mensagens_erro.html', msg='Erro! Precisa ser método POST')
 
 
@@ -370,7 +371,7 @@ print('ADMINISTRADOR: ', admin.nivel_acesso)
 # op_caixa_01 = NivelAcesso('op_caixa')  # ID 2
 # db.session.add(op_caixa_01)
 # db.session.commit()
-op_caixa_01 = NivelAcesso.query.get(3)
+op_caixa_01 = NivelAcesso.query.get(1)
 print('OPERADOR DE CAIXA: ', op_caixa_01)
 print('OPERADOR DE CAIXA: ', op_caixa_01.nivel_acesso)
 op_caixa_01
@@ -380,6 +381,7 @@ print()
 print()
 
 '''
+
 
 
 '''
@@ -414,13 +416,13 @@ print('ALTERAÇÃO DE SENHA: ', user_maria.alterar_senha('123@Orfeu', '123'))
 
 print(100 * '*')
 
-# op_caixa_01 = NivelAcesso.query.get(1)
-# user_joao = Usuario('Joao', '1199992222', 'joao@email.com',
-#                     'joao.joao', '123', op_caixa_01.id)
+op_caixa_01 = NivelAcesso.query.get(1)
+user_joao = Usuario('Joao', '1199992222', 'joao@email.com',
+                    'joao.joao', '123', op_caixa_01.id)
 
-# db.session.add(user_joao)
-# db.session.commit()
-user_joao = Usuario.query.get(3)
+db.session.add(user_joao)
+db.session.commit()
+user_joao = Usuario.query.get(2)
 print('USUÁRIO 02 ID: ', user_joao)
 print('USUÁRIO 02 NOME: ', user_joao.nome)
 print('USUÁRIO 02 TELEFONE: ', user_joao.telefone)
@@ -462,6 +464,7 @@ user_joao = Usuario.query.get(2)
 nivel_user = NivelAcesso.query.get(user_joao.id_nivel_acesso_id)
 user_joao.nome_nivel_acesso = nivel_user.nivel_acesso
 print('USUÁRIO 02 NOME ID_NIVEL_ACESSO_ID: ', user_joao.nome_nivel_acesso)
+
 
 
 print("# ********************** TESTES CLIENTE ********************** #")
