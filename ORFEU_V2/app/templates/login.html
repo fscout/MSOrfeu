@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/login.css">
+</head>
+<body>
+
+  <div class="container principal">
+    <h1 class="texto-login">Login</h1>
+    <div class="divisao"></div>
+    <form action="" method="POST">
+        {{ form.csrf_token }}
+        <div class="nome">
+            {{ form.login(class="form-control", placeholder="Seu Usuário")}}
+        </div>
+
+        <div id="senha_login" class="senha">
+          {{ form.senha(class="form-control", placeholder="Sua Senha")}}
+        </div>
+
+        <button type="submit" class="btn btn-default btn-enter">Entrar</button>
+
+
+        <div class="dados-invalidos">
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <ul class=flashes>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+        </div>
+      </form>
+
+      <div class="modal-body nova-senha">
+        <form action="/recuperar_senha_email" method="POST">
+          <div class="perg">Esqueceu a senha?</div>
+          <div class="form-group col-md-4">
+            <input type="email" value="E-mail" class="form-control email" id="email" name="email" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-nova-senha">Enviar Nova Senha</button>
+        </form>
+      </div>
+    </div>
+
+  <script src="static/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
