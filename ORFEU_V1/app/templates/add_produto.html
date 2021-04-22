@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ super() }} - Adicionar Produto
+{% endblock title %}
+
+{% block main %}
+<div class="container" align="center">
+  <h1 align="center" class="fill2">Cadastrar Produto</h1>
+
+  <form action="/add_produto" method="POST">
+    <div class="form-group col-md-4">
+      <label class="fill2" for="cod_brras">Código:</label>
+      <input type="text" class="form-control" id="cod_brras" name="cod_brras" required maxlength="13">
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="descricao_prod">Descricao:</label>
+      <input type="text" class="form-control convertePMaiuscula" id="descricao_prod" name="descricao_prod" required onchange="converteParaMaiuscula()">
+      <!-- onchange="converteParaMaiuscula()" -->
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="quant_prod">Quantidade:</label>
+      <input type="number" class="form-control" id="quant_prod" name="quant_prod" required>
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="quant_min">Quant. Mínima:</label>
+      <input type="number" class="form-control" id="quant_min" name="quant_min" required value="0">
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="quant_max">Quant. Máxima:</label>
+      <input type="number" class="form-control" id="quant_max" name="quant_max" required value="0">
+    </div>
+
+    <!--implementar código para converter . para , e só então mandar para o back-->
+    <div class="form-group col-md-4">
+      <label class="fill2" for="preco_custo">Preço Custo:</label>
+      <input type="text" class="form-control" id="preco_custo" name="preco_custo" required>
+    </div>
+
+    <!--implementar código para converter . para , e só então mandar para o back-->
+    <div class="form-group col-md-4">
+      <label class="fill2" for="preco_venda">Preço Venda:</label>
+      <input type="text" class="form-control" id="preco_venda" name="preco_venda" required>
+    </div>
+
+
+    <!--Caso o usuário não escolha categoria, verificar como trataremos-->
+    <div class="form-group col-md-4">
+      <label class="fill2" for="id_categoria">Categorias:</label>
+      <select class="form-select" aria-label="Default select example" id="id_categ_select" onchange="add_categoria()">
+        <option selected>Escolha uma Categoria</option>
+        {% for c in categorias %}
+        <option value="{{c.id}}">{{c.categoria_produto}}</option>
+        {% endfor %}
+      </select>
+      <!--Definiremos um valor default para categoria, ou seja, caso o usuário não selecione nenhuma categoria cadastraremos uma categoria padrão-->
+      <input type="number" class="form-control" id="id_categoria" name="id_categoria" value=1 hidden>
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#categorias">
+        Adicionar Categoria
+      </button>
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="id_marca">Marca:</label>
+      <select class="form-select" aria-label="Default select example" id="id_marca_select" onchange="add_marca()">
+        <option selected>Escolha uma Marca</option>
+        {% for m in marcas %}
+        <option value="{{m.id}}">{{m.marca_produto}}</option>
+        {% endfor %}
+      </select>
+
+      <!--Definiremos um valor default para categoria, ou seja, caso o usuário não selecione nenhuma categoria cadastraremos uma categoria padrão-->
+      <input type="number" class="form-control" id="id_marca" name="id_marca" value=1 hidden>
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#marcas">
+        Adicionar Marca
+      </button>
+    </div>
+
+    <div class="form-group col-md-4">
+      <label class="fill2" for="id_medida">Medida:</label>
+
+      <select class="form-select" aria-label="Default select example" id="id_medida_select" onchange="add_medida()">
+        <option selected>Escolha uma Medida</option>
+        {% for m in medidas %}
+        <option value="{{m.id}}">{{m.medida_produto}}</option>
+        {% endfor %}
+      </select>
+
+      <!--Definiremos um valor default para categoria, ou seja, caso o usuário não selecione nenhuma categoria cadastraremos uma categoria padrão-->
+      <input type="number" class="form-control" id="id_medida" name="id_medida" value=1 hidden>
+
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#medidas">
+        Adicionar Medida
+      </button>
+    </div>
+
+
+    <a href="/produtos_cadastrados"><button type="button" class="btn btn-danger">Cancelar</button></a>
+    <button type="submit" class="btn btn-primary">Cadastrar</button>
+
+  </form>
+
+
+
+
+  <!-- Modal Categoria -->
+  <div class="modal fade" id="categorias" tabindex="-1" role="dialog" aria-labelledby="categoriasLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoriasLabel">Nome da Categoria</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form action="/add_categoria" method="POST">
+            <div class="form-group col-md-4">
+              <label class="fill2" for="categoria_produto">Categoria:</label>
+              <input type="text" class="form-control convertePMaiuscula" id="categoria_produto" name="categoria_produto" required onchange="converteParaMaiuscula()" maxlength="30">
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Categoria</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </form>
+        </div>
+
+
+
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Adicionar Categoria</button>
+        </div> -->
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+  <!-- Modal Marca-->
+  <div class="modal fade" id="marcas" tabindex="-1" role="dialog" aria-labelledby="marcasLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="marcasLabel">Nome da Marca</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form action="/add_marca" method="POST">
+            <div class="form-group col-md-4">
+              <label class="fill2" for="marca_produto">Marca:</label>
+              <input type="text" class="form-control convertePMaiuscula" id="categoria_produto" name="marca_produto" required onchange="converteParaMaiuscula()" maxlength="30">
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Marca</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </form>
+        </div>
+
+
+
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          <button type="submit" class="btn btn-primary">Adicionar Marca</button>
+        </div> -->
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+  <!-- Modal Medida-->
+  <div class="modal fade" id="medidas" tabindex="-1" role="dialog" aria-labelledby="medidasLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="medidasLabel">Nome da Medida</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form action="/add_medida" method="POST">
+            <div class="form-group col-md-4">
+              <label class="fill2" for="medida_produto">Medida:</label>
+              <input type="text" class="form-control convertePMaiuscula" id="categoria_produto" name="medida_produto" required onchange="converteParaMaiuscula()" maxlength="30">
+            </div>
+            <button type="submit" class="btn btn-primary">Adicionar Medida</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          </form>
+        </div>
+
+
+<!-- 
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+          <button type="submit" class="btn btn-primary">Adicionar Medida</button>
+        </div> -->
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- <button onclick=envia_dados()>Click me!</button> -->
+
+
+</div>
+
+
+
+
+
+{% endblock main %}

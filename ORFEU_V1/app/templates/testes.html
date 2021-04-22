@@ -1,0 +1,67 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+<title>Usando eventos no Javascript</title>
+<script>
+function myFunction()
+{
+var x=document.getElementById("fname");
+x.value=x.value.toUpperCase();
+}
+</script>
+</head>
+<body>
+
+Insira seu Nome: <input type="text" id="fname" onchange="myFunction()">
+<p>
+Ao clicarmos fora do input text o texto escrito nele ficará todo em caixa alta.</p>
+
+</body>
+</html> -->
+
+
+
+<html>  
+
+<head>  
+    <title>Teste</title>  
+</head>  
+
+
+
+<body>  
+<script type="text/javascript">  
+function mostrarValor(){  
+    var frm = document.frm;  
+    var val1 = frm.valor1.value;  
+
+    alert(val1 );  
+
+}  
+</script>  
+
+
+<form name="frm">  
+
+<input type="text" name="valor1"  size="10" >  
+
+<button type="button" onclick="mostrarValor();">Veja os valores</button>
+</form>  
+
+
+
+
+
+<button onclick=envia_dados()>Click me!</button>
+
+<script>
+    function envia_dados() {
+        var meus_dados = "Enviando dados"
+        $.post("/recebe_dados_jquery", {"meus_dados": meus_dados})
+    }
+</script>
+
+</body>  
+
+</html> 
+
