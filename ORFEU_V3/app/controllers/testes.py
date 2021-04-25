@@ -42,7 +42,7 @@
 # Justificativa
 # MovimentacaoCaixa
 
-# select * from nivel_acesso;
+# select * from nivel_acesso; 
 # select * from usuario;
 # select * from cliente;
 # select * from categoria;

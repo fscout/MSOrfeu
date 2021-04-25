@@ -11,8 +11,21 @@ function formataMoeda() {
         }
 }
 
-function msg() {
-    alert("Apagado com sucesso!")
+function msg(valor) {
+    switch (valor) {
+        case 1:
+            alert("Criado com sucesso!")
+            break;
+        case 2:
+            alert("alterado com sucesso!")
+            break;
+        case 3:
+            alert("Apagado com sucesso!")
+            break;
+        default:
+            alert("Não existe!")
+            break;
+    }
 }
  
 
@@ -92,4 +105,15 @@ function envia_dados() {
 
 function msg_produto_cadastrado(){
     alert("Produto já cadastrado!")
+}
+
+
+
+
+
+function add_nivel()
+{
+var id_nivel_select = document.getElementById("id_nivel_select");
+var id_nivel_acesso_id = document.getElementById("id_nivel_acesso_id");
+id_nivel_acesso_id.value = id_nivel_select.value
 }

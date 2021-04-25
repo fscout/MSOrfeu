@@ -38,7 +38,7 @@
 
               <div class="form-group col-md-4">
                 <label for="senha">SENHA</label>
-                <input type="password" class="form-control" id="senha" name="senha" value="{{usuario.senha}}" required maxlength="30" minlength="8">
+                <input type="password" class="form-control" id="senha" name="senha" maxlength="30" minlength="8">
               </div>
 
               <!-- <div class="form-group col-md-4">
@@ -47,12 +47,28 @@
               </div> -->
 
               <div class="form-group col-md-4">
-                <label for="id_nivel_acesso_id">ID_NIVEL_ACESSO_ID</label>
-                <input type="number" class="form-control" id="id_nivel_acesso_id" name="id_nivel_acesso_id" value="{{usuario.id_nivel_acesso_id}}">
+                <label>ID_NIVEL_ACESSO_ID</label>
+                <input type="text" class="form-control" value="{{usuario.exibir_nivel_acesso()}}" disabled>
               </div>
+
+              <input type="number" class="form-control" id="id_nivel_acesso_id" name="id_nivel_acesso_id" value="{{usuario.id_nivel_acesso_id}}" hidden>
+
+              <select class="form-select" aria-label="Default select example" id="id_nivel_select" onchange="add_nivel()">
+                <option selected>Escolha um nivel de acesso</option>
+                <option value=1>ADMINISTRADOR</option>
+                <option value=2>OPERADOR DE CAIXA</option>
+              </select>
+
+
+
+
+
 
               <a href="/usuarios_cadastrados"><button type="button" class="btn btn-danger">Cancelar</button></a>
             <button type="submit" class="btn btn-dark">Alterar Usuário</button>
+
+
+          </form>
 
 <!-- 
             <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->

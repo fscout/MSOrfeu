@@ -5,6 +5,7 @@ import datetime
 from app.models import recuperacao_senha
 
 
+
 '''
 Não esquecer de remover todos os comentários desnecessários.
     OBS:
@@ -32,13 +33,13 @@ o valor_movimentacao
 class NivelAcesso(db.Model):  # OK
     '''
         Essa classe serve para criarmos os níveis de acessos dos usuários,
-    ou seja, se ele é um administrador (Admin) ou Operador de Caixa
+    ou seja, se ele é um ADMINISTRADOR (Admin) ou OPERADOR DE CAIXA
     (Op. Caixa).
     '''
     __tablename__ = "nivel_acesso"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    nivel_acesso = db.Column(db.String(13), nullable=False, unique=True)
+    nivel_acesso = db.Column(db.String(20), nullable=False, unique=True)
 
     def __init__(self, nivel_acesso):
         self.nivel_acesso = nivel_acesso
@@ -194,19 +195,13 @@ class Cliente(db.Model):
                  observacao=None):
         self.nome = nome
         self.telefone = telefone
-        # Refatorar data para exibição padrão brasileiro
         self.data_pagamento = data_pagamento
-        self.data_ultima_compra = datetime.datetime(year=self.now.year,
-                                                    month=self.now.month,
-                                                    day=self.now.day,
-                                                    hour=self.now.hour,
-                                                    minute=self.now.minute,
-                                                    second=self.now.second)
-
+        self.data_ultima_compra = None
         self.valor_divida = 0
         self.status = True  # True = Pode comprar fiado - False = Não pode.
         self.cpf = cpf
         self.observacao = observacao
+
 
     '''
         O método abaixo atualiza a data que o comerciante determinará para
@@ -214,9 +209,7 @@ class Cliente(db.Model):
     '''
 
     def atualizar_data_pagamento(self, data):
-        self.data_pagamento = datetime.datetime(year=data[0], month=data[1],
-                                                day=data[2], hour=data[3],
-                                                minute=data[4], second=data[5])
+        self.data_pagamento = data
         db.session.add(self)
         db.session.commit()
 

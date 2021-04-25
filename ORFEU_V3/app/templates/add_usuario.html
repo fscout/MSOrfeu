@@ -46,16 +46,40 @@
             <input type="text" class="form-control" id="status" name="status">
           </div> -->
   
-          <div class="form-group col-md-4">
-            <label class="fill2" for="id_nivel_acesso_id">ID_NIVEL_ACESSO_ID:</label>
-            <input type="number" class="form-control" id="id_nivel_acesso_id" name="id_nivel_acesso_id" required value="1">
-          </div>
+
+            <input type="number" class="form-control" id="id_nivel_acesso_id" name="id_nivel_acesso_id" required value="2" hidden>
+ 
+
+
+          <select class="form-select" aria-label="Default select example" id="id_nivel_select" onchange="add_nivel()">
+            <option selected>Escolha um nivel de acesso</option>
+            {% for n in niveis %}
+            <option value="{{n.id}}">{{n.nivel_acesso}}</option>
+            {% endfor %}
+          </select>
+
+
+
+
 
           <a href="/usuario_cadastrados"><button type="button" class="btn btn-danger">Cancelar</button></a>
           <button type="submit" class="btn btn-primary">Cadastrar</button>
 
 </form>
 
+
+
+
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 
 <!-- <script src="{{ url_for('static', filename='js/verifica_acesso.js')}}"></script> -->

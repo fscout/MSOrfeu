@@ -5,7 +5,7 @@ PASSO A PASSO NO BASH
 3º INSTALAR AS BIBLIOTECAS --- pip install -r requirements.txt
 4º APLICAR OS COMANDOS ABAIXO:
 
-source venv/Scripts/activate
+source venv/Scripts/activate 
 python run.py db init
 python run.py db migrate
 python run.py db upgrade

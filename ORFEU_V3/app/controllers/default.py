@@ -64,7 +64,7 @@ def login():
                                duration=timedelta(days=2))
                 else:
                     login_user(usuario)
-                return render_template('index.html')
+                return redirect(url_for('usuarios_cadastrados'))
             flash("Usuário encontra-se bloqueado!")
             return redirect(url_for('login'))
         else:
@@ -96,9 +96,11 @@ def add_usuario():
         for u in usuarios:
             #  Se o email ou login já existir mandar de volta para o index
             if u.email == request.form['email']:
-                return redirect(url_for('index'))
+                flash("Esse e-mail já existe!")
+                return redirect(url_for('add_usuario_full'))
             if u.login == request.form['login']:
-                return redirect(url_for('index'))
+                flash("Esse login já existe!")
+                return redirect(url_for('add_usuario_full'))
         usuario = Usuario(request.form['nome'], request.form['telefone'],
                           request.form['email'],
                           request.form['login'],
@@ -107,6 +109,14 @@ def add_usuario():
         db.session.commit()
         return redirect(url_for('usuarios_cadastrados'))
     return render_template('add_usuario.html')
+
+
+
+@app.route("/add_usuario_full")
+@login_required
+def add_usuario_full():
+    niveis = NivelAcesso.query.all()
+    return render_template('add_usuario.html', niveis=niveis)
 
 
 @app.route("/edit_usuario/<int:id>", methods=['GET', 'POST'])
@@ -129,7 +139,13 @@ def edit_usuario(id):
         usuario.telefone = request.form['telefone']
         usuario.email = request.form['email']
         usuario.login = request.form['login']
-        usuario.senha = request.form['senha']
+        if request.form['senha'] == "":
+            # print('entrei aqui no IF request.form[senha] ', request.form['senha'])
+            usuario.senha = usuario.senha
+            # print('usuario.senha', usuario.senha)
+        else:
+            # print('entrei aqui no Else', request.form['senha'])
+            usuario.senha = usuario.criptografar_senha(request.form['senha'])
         usuario.id_nivel_acesso_id = request.form['id_nivel_acesso_id']
         db.session.commit()
         return usuarios_cadastrados()
@@ -163,6 +179,7 @@ def bloquear_usuario(id):
     if usuario:
         usuario.bloquear_usuario()
         # print('Usuário Bloqueado')
+        flash(f'O usuário {usuario.nome} foi bloqueado!')
         return usuarios_cadastrados()
     # print('Não existe esse Usuario')
     return usuarios_cadastrados()
@@ -174,6 +191,7 @@ def desbloquear_usuario(id):
     usuario = Usuario.query.get(id)
     if usuario:
         usuario.desbloquear_usuario()
+        flash(f'O usuário {usuario.nome} foi desbloqueado!')
         # print('Usuário desbloqueado')
         return usuarios_cadastrados()
     # print('Não existe esse Usuario')
@@ -186,6 +204,7 @@ def resetar_usuario(id):
     usuario = Usuario.query.get(id)
     if usuario:
         usuario.resetar_usuario()
+        flash(f'A senha do usuário {usuario.nome} foi resetada para 123@Orfeu!')
         # print('Usuário desbloqueado')
         return usuarios_cadastrados()
     # print('Não existe esse Usuario')
@@ -364,7 +383,8 @@ def add_produto_full():
     categorias = Categoria.query.all()
     marcas = Marca.query.all()
     medidas = Medida.query.all()
-    return render_template('add_produto.html', categorias=categorias, marcas=marcas, medidas=medidas)
+    return render_template('add_produto.html', categorias=categorias,
+                           marcas=marcas, medidas=medidas)
 
 
 @app.route("/add_categoria", methods=['GET', 'POST'])
@@ -374,11 +394,47 @@ def add_categoria():
         categorias = Categoria.query.all()
         for c in categorias:
             if c.nome_categoria == request.form['nome_categoria']:
-                return redirect(url_for('produtos_cadastrados'))
+                print("Categoria já existe!")
+                return redirect(url_for('listar_categorias'))
         categoria = Categoria(request.form['nome_categoria'])
         db.session.add(categoria)
         db.session.commit()
-        return redirect(url_for('add_produto'))
+        print("Categoria Cadastrada!")
+        return redirect(url_for('listar_categorias'))
+
+
+@app.route("/edit_categoria/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_categoria(id):
+    categoria = Categoria.query.get(id)
+    if request.method == 'POST':
+        categorias = Usuario.query.all()
+        for c in categorias:
+            if c.id != categoria.id:
+                if c.nome_categoria == request.form['nome_categoria']:
+                    # print('Essa Categoria já foi cadastrada')
+                    return redirect(url_for('listar_categorias'))
+        categoria.nome_categoria = request.form['nome_categoria']
+        # print('Categoria cadastrada com sucesso')
+        db.session.commit()
+        return listar_categorias()
+    return listar_categorias()
+
+
+@app.route("/delete_categoria/<int:id>")
+@login_required
+def delete_categoria(id):
+    categoria = Categoria.query.get(id)
+    db.session.delete(categoria)
+    db.session.commit()
+    return redirect(url_for('listar_categorias'))
+
+
+@app.route("/listar_categorias")
+@login_required
+def listar_categorias():
+    categorias = Categoria.query.all()
+    return render_template('add_categoria.html', categorias=categorias)
 
 
 @app.route("/add_marca", methods=['GET', 'POST'])
@@ -392,8 +448,48 @@ def add_marca():
         marca = Marca(request.form['nome_marca'])
         db.session.add(marca)
         db.session.commit()
-        return redirect(url_for('add_produto'))
-    return redirect(url_for('add_produto'))
+        return redirect(url_for('listar_marcas'))
+    return redirect(url_for('listar_marcas'))
+
+
+
+
+@app.route("/edit_marca/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_marca(id):
+    marca = Marca.query.get(id)
+    if request.method == 'POST':
+        marcas = Usuario.query.all()
+        for m in marcas:
+            if m.id != marca.id:
+                if m.nome_marca == request.form['nome_marca']:
+                    # print('Essa Categoria já foi cadastrada')
+                    return redirect(url_for('listar_marca'))
+        marca.nome_marca = request.form['nome_marca']
+        # print('Categoria cadastrada com sucesso')
+        db.session.commit()
+        return listar_marcas()
+    return listar_marcas()
+
+
+@app.route("/delete_marca/<int:id>")
+@login_required
+def delete_marca(id):
+    marca = Marca.query.get(id)
+    db.session.delete(marca)
+    db.session.commit()
+    return redirect(url_for('listar_marcas'))
+
+
+@app.route("/listar_marcas")
+@login_required
+def listar_marcas():
+    marcas = Marca.query.all()
+    return render_template('add_marca.html', marcas=marcas)
+
+
+
+
 
 
 @app.route("/add_medida", methods=['GET', 'POST'])
@@ -407,26 +503,72 @@ def add_medida():
         medida = Medida(request.form['nome_medida'])
         db.session.add(medida)
         db.session.commit()
-        return redirect(url_for('add_produto'))
-    return redirect(url_for('add_produto'))
+        return redirect(url_for('listar_medidas'))
+    return redirect(url_for('listar_medidas'))
+
+
+
+
+@app.route("/edit_medida/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_medida(id):
+    medida = Medida.query.get(id)
+    if request.method == 'POST':
+        medidas = Usuario.query.all()
+        for m in medidas:
+            if m.id != medida.id:
+                if m.nome_medida == request.form['nome_medida']:
+                    # print('Essa Categoria já foi cadastrada')
+                    return redirect(url_for('listar_medidas'))
+        medida.nome_medida = request.form['nome_medida']
+        # print('Categoria cadastrada com sucesso')
+        db.session.commit()
+        return listar_medidas()
+    return listar_medidas()
+
+
+@app.route("/delete_medida/<int:id>")
+@login_required
+def delete_medida(id):
+    medida = Medida.query.get(id)
+    db.session.delete(medida)
+    db.session.commit()
+    return redirect(url_for('listar_medidas'))
+
+
+@app.route("/listar_medidas")
+@login_required
+def listar_medidas():
+    medidas = Medida.query.all()
+    return render_template('add_medida.html', medidas=medidas)
+
+
+
+
+@app.route("/tipo_pagamento")
+@login_required
+def tipo_pagamento():
+    tipo_pagamentos = TipoPagamento.query.all()
+    return render_template('tipo_pagamento.html', tipo_pagamentos=tipo_pagamentos)
+
 
 
 '''
 print("# ********************** TESTES NÍVEL DE ACESSO ********************** #")
 # nivel_acesso
-# admin = NivelAcesso('admin')  # ID 1
-# db.session.add(admin)
-# db.session.commit()
-admin = NivelAcesso.query.get(1)
+admin = NivelAcesso('ADMINISTRADOR')  # ID 1
+db.session.add(admin)
+db.session.commit()
+# admin = NivelAcesso.query.get(1)
 
 print('ADMINISTRADOR: ', admin)
 print('ADMINISTRADOR: ', admin.nivel_acesso)
 
 
-# op_caixa_01 = NivelAcesso('op_caixa')  # ID 2
-# db.session.add(op_caixa_01)
-# db.session.commit()
-op_caixa_01 = NivelAcesso.query.get(1)
+op_caixa_01 = NivelAcesso('OPERADOR DE CAIXA')  # ID 2
+db.session.add(op_caixa_01)
+db.session.commit()
+# op_caixa_01 = NivelAcesso.query.get(2)
 print('OPERADOR DE CAIXA: ', op_caixa_01)
 print('OPERADOR DE CAIXA: ', op_caixa_01.nivel_acesso)
 op_caixa_01
@@ -434,19 +576,22 @@ print(100 * '*')
 print()
 print()
 print()
-
 '''
+
+
 
 
 '''
 print("# ********************** TESTES USUARIO ********************** #")
 # nome, telefone, email, login, senha, id_nivel_acesso_id=2
 
-# admin = NivelAcesso.query.get(1)
-# user_maria = Usuario('Maria', '1199991111',
-#                      'maria@email.com', 'maria.maria', '123', admin.id)
-# db.session.add(user_maria)
-# db.session.commit()
+admin = NivelAcesso.query.get(1)
+user_maria = Usuario('Maria', '1199991111',
+                     'emprentime@gmail.com', 'maria', '123', admin.id)
+db.session.add(user_maria)
+db.session.commit()
+
+
 user_maria = Usuario.query.get(1)
 print('USUÁRIO 01 ID: ', user_maria)
 print('USUÁRIO 01 NOME: ', user_maria.nome)
@@ -456,7 +601,7 @@ print('USUÁRIO 01 LOGIN: ', user_maria.login)
 print('USUÁRIO 01 SENHA: ', user_maria.senha)
 print('USUÁRIO 01 STATUS: ', user_maria.status)
 print('USUÁRIO 01 ID_NIVEL_ACESSO_ID: ', user_maria.id_nivel_acesso_id)
-# BLOQUEAR USUÁRIO
+# f USUÁRIO
 user_maria.bloquear_usuario()
 print('USUÁRIO 01 STATUS BLOQUEADO: ', user_maria.status)
 # DESBLOQUEAR USUÁRIO
@@ -518,25 +663,29 @@ user_joao = Usuario.query.get(2)
 nivel_user = NivelAcesso.query.get(user_joao.id_nivel_acesso_id)
 user_joao.nome_nivel_acesso = nivel_user.nivel_acesso
 print('USUÁRIO 02 NOME ID_NIVEL_ACESSO_ID: ', user_joao.nome_nivel_acesso)
+'''
 
-
-
+'''
 print("# ********************** TESTES CLIENTE ********************** #")
 
 # Ajustar formato de data e hora
 
 # nome, telefone, data_pagamento, cpf=None, observacao=None
 # data_e_hora = datetime.strptime('20/04/2021 12:30', '%d/%m/%Y %H:%M')
-# cli_jose = Cliente('Jose', '1199993333', data_e_hora,
-#                    '11111111111', 'observacao 01')
-# db.session.add(cli_jose)
-# db.session.commit()
-cli_jose = Cliente.query.get(1)
+
+cli_jose = Cliente('Jose 1', '1199995333', '20/04/2021',
+                   '11111111111', 'observacao 01')
+db.session.add(cli_jose)
+db.session.commit()
+# cli_jose = Cliente.query.get(1)
+
 
 print('CLIENTE 01 ID: ', cli_jose)
 print('CLIENTE 01 NOME: ', cli_jose.nome)
 print('CLIENTE 01 TELEFONE: ', cli_jose.telefone)
 print('CLIENTE 01 DATA_PAGAMENTO: ', cli_jose.data_pagamento)
+
+
 print('CLIENTE 01 DATA_ULTIMA_COMPRA: ', cli_jose.data_ultima_compra)
 print('CLIENTE 01 VALOR_DIVIDA: ', cli_jose.valor_divida)
 print('CLIENTE 01 STATUS: ', cli_jose.status)
@@ -544,6 +693,7 @@ print('CLIENTE 01 CPF: ', cli_jose.cpf)
 print('CLIENTE 01 OBSERVACAO: ', cli_jose.observacao)
 
 print(100 * '*')
+
 
 # data_e_hora = datetime.strptime('20/04/2021 12:30', '%d/%m/%Y %H:%M')
 # cli_marta = Cliente('Marta', '1199994444', data_e_hora)
@@ -749,44 +899,45 @@ print()
 print()
 print()
 
-
+'''
+'''
 print("# ********************** TESTES TIPO PAGAMENTO ********************** #")
 # tipo_pagamento
 
-# tipo_pagamento_dinheiro = TipoPagamento('DINHEIRO')  # ID 1
-# db.session.add(tipo_pagamento_dinheiro)
-# db.session.commit()
-tipo_pagamento_dinheiro = TipoPagamento.query.get(1)
+tipo_pagamento_dinheiro = TipoPagamento('DINHEIRO')  # ID 1
+db.session.add(tipo_pagamento_dinheiro)
+db.session.commit()
+# tipo_pagamento_dinheiro = TipoPagamento.query.get(1)
 
 print('TIPO PAGAMENTO ID: ', tipo_pagamento_dinheiro)
 print('TIPO PAGAMENTO NOME: ', tipo_pagamento_dinheiro.tipo_pagamento)
 
 print(100 * '*')
 
-# tipo_pagamento_cartao_debito = TipoPagamento('CARTÃO DÉBITO')  # ID 2
-# db.session.add(tipo_pagamento_cartao_debito)
-# db.session.commit()
-tipo_pagamento_cartao_debito = TipoPagamento.query.get(2)
+tipo_pagamento_cartao_debito = TipoPagamento('CARTÃO DÉBITO')  # ID 2
+db.session.add(tipo_pagamento_cartao_debito)
+db.session.commit()
+# tipo_pagamento_cartao_debito = TipoPagamento.query.get(2)
 
 print('TIPO PAGAMENTO ID: ', tipo_pagamento_cartao_debito)
 print('TIPO PAGAMENTO NOME: ', tipo_pagamento_cartao_debito.tipo_pagamento)
 
 print(100 * '*')
 
-# tipo_pagamento_cartao_credito = TipoPagamento('CARTÃO CRÉDITO')  # ID 3
-# db.session.add(tipo_pagamento_cartao_credito)
-# db.session.commit()
-tipo_pagamento_cartao_credito = TipoPagamento.query.get(3)
+tipo_pagamento_cartao_credito = TipoPagamento('CARTÃO CRÉDITO')  # ID 3
+db.session.add(tipo_pagamento_cartao_credito)
+db.session.commit()
+# tipo_pagamento_cartao_credito = TipoPagamento.query.get(3)
 
 print('TIPO PAGAMENTO ID: ', tipo_pagamento_cartao_credito)
 print('TIPO PAGAMENTO NOME: ', tipo_pagamento_cartao_credito.tipo_pagamento)
 
 print(100 * '*')
 
-# tipo_pagamento_fiado = TipoPagamento('FIADO')  # ID 4
-# db.session.add(tipo_pagamento_fiado)
-# db.session.commit()
-tipo_pagamento_fiado = TipoPagamento.query.get(4)
+tipo_pagamento_fiado = TipoPagamento('FIADO')  # ID 4
+db.session.add(tipo_pagamento_fiado)
+db.session.commit()
+# tipo_pagamento_fiado = TipoPagamento.query.get(4)
 
 print('TIPO PAGAMENTO ID: ', tipo_pagamento_fiado)
 print('TIPO PAGAMENTO NOME: ', tipo_pagamento_fiado.tipo_pagamento)
@@ -796,8 +947,9 @@ print(100 * '*')
 print()
 print()
 print()
+'''
 
-
+'''
 print("# ********************** TESTES DETALHES PAGAMENTO ********************** #")
 # valor
 # id_tipo_pagamento_id

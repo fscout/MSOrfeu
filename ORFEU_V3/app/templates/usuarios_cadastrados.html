@@ -19,7 +19,7 @@
                 <th class="fill2">TELEFONE</th>
                 <th class="fill2">EMAIL</th>
                 <th class="fill2">LOGIN</th>
-                <th class="fill2">SENHA</th>
+                <!-- <th class="fill2">SENHA</th> -->
                 <th class="fill2">STATUS</th>
                 <th class="fill2">ID_NIVEL_ACESSO_ID</th>
             </tr>
@@ -32,7 +32,7 @@
                 <td>{{u.telefone}}</td>
                 <td >{{u.email}}</td>
                 <td>{{u.login}}</td>
-                <td>{{u.senha}}</td>
+                <!-- <td>{{u.senha}}</td> -->
                 <td>{{u.verificar_status()}}</td>
                 <td>{{u.exibir_nivel_acesso()}}</td>
                 <td>
@@ -51,6 +51,19 @@
             {% endfor %}
         </tbody>
     </table>
+
+
+
+
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 
 

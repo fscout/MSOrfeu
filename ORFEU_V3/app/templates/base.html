@@ -23,7 +23,8 @@
 
             {% if current_user.is_authenticated %}
 
-            {% if current_user.nivel_acesso == "adm" %}
+
+            {% if current_user.nivel_acesso == "NivelAcesso 1" %}
                 <li><a class="fill" href="/add_produto_full">Cadastrar Produtos</a></li>
                 <li><a class="fill" href="/produtos_cadastrados">Consultar Produtos</a></li>
                 <li><a class="fill" href="/add_usuario">Cadastrar Usuários</a></li>
@@ -31,7 +32,15 @@
                 <li><a class="fill" href="{{ url_for('logout') }}">Logout</a></li>
 
                 {% else %}
-                <li><a class="fill" href="/op_caixa">Definir o que o OP. de Caixa terá acesso</a></li>
+                <li><a class="fill" href="/listar_categorias">Categorias</a></li>
+                <li><a class="fill" href="/listar_marcas">Marcas</a></li>
+                <li><a class="fill" href="/listar_medidas">Medidas</a></li>
+                <li><a class="fill" href="/add_produto_full">Cadastrar Produtos</a></li>
+                <li><a class="fill" href="/produtos_cadastrados">Consultar Produtos</a></li>
+                <li><a class="fill" href="/add_usuario_full">Cadastrar Usuários</a></li>
+                <li><a class="fill" href="/usuarios_cadastrados">Consultar Usuários</a></li>
+                <li><a class="fill" href="/tipo_pagamento">Tipo de pagamento</a></li>
+
                 <li><a class="fill" href="{{ url_for('logout') }}">Logout</a></li>
                 {% endif %}
 
