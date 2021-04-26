@@ -117,3 +117,4 @@ var id_nivel_select = document.getElementById("id_nivel_select");
 var id_nivel_acesso_id = document.getElementById("id_nivel_acesso_id");
 id_nivel_acesso_id.value = id_nivel_select.value
 }
+

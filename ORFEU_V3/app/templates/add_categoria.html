@@ -63,14 +63,17 @@
 
 
   <div class="form-group col-md-4">
-    <label class="fill2" for="categoria">Categorias Cadastradas:</label>
-      <select name="" id="">
+    <label class="fill2" for="id_categoria">Categorias:</label>
+    <select class="form-select" aria-label="Default select example" id="id_categ_select_t" onchange="add_categoria()">
+      <option selected>Categorias Cadastradas</option>
         {% for c in categorias %}
-        <option value="">{{c.nome_categoria}}</option>
+        <option value="{{c.id}}">{{c.nome_categoria}}</option>
         {% endfor %}
     </select>
-
   </div>
+
+
+
 
 
 

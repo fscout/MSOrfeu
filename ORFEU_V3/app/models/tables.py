@@ -202,6 +202,24 @@ class Cliente(db.Model):
         self.cpf = cpf
         self.observacao = observacao
 
+    # Tratar no front a exibição do status do usuário
+    def verificar_status(self):
+        if self.status:
+            return 'PODE COMPRAR FIADO'  # TRUE
+        return 'NÃO PODE COMPRAR FIADO'  # FALSE
+
+    def bloquear_cliente(self):
+        self.status = False
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
+    def desbloquear_cliente(self):
+        self.status = True
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
 
     '''
         O método abaixo atualiza a data que o comerciante determinará para

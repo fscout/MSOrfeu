@@ -257,6 +257,125 @@ def op_caixa():
     return render_template('op_caixa.html')
 
 
+
+@app.route("/add_cliente_full")
+@login_required
+def add_cliente_full():
+    return render_template('add_cliente.html')
+
+
+
+
+@app.route("/add_cliente", methods=['GET', 'POST'])
+@login_required
+def add_cliente():
+    if request.method == 'POST':
+        clientes = Cliente.query.all()
+        for c in clientes:
+            if c.telefone == request.form['telefone']:
+                flash("Esse telefone já está associado a outro cliente!")
+                return redirect(url_for('clientes_cadastrados'))
+            if request.form['cpf'] != "" and c.cpf == request.form['cpf']:
+                flash("Esse CPF já está associado a outro cliente!")
+                return redirect(url_for('clientes_cadastrados'))
+        cliente = Cliente(request.form['nome'], request.form['telefone'],
+                          request.form['data_pagamento'],
+                          request.form['cpf'],
+                          request.form['observacao'])
+        db.session.add(cliente)
+        db.session.commit()
+        flash(f"O Cliente {cliente.nome} foi criado com sucesso!")
+        return redirect(url_for('clientes_cadastrados'))
+    return render_template('add_cliente.html')
+
+
+
+@app.route("/clientes_cadastrados")
+@login_required
+def clientes_cadastrados():
+    clientes = Cliente.query.all()
+    return render_template("clientes_cadastrados.html", clientes=clientes)
+
+
+
+@app.route("/edit_cliente/<int:id>", methods=['GET', 'POST'])
+@login_required
+def edit_cliente(id):
+    cliente = Cliente.query.get(id)
+    if request.method == 'POST':
+        clientes = Cliente.query.all()
+        for c in clientes:
+            if c.id != cliente.id:
+                if c.telefone == request.form['telefone']:
+                    flash("Esse telefone já está associado a outro cliente!")
+                    return redirect(url_for('clientes_cadastrados'))
+                if request.form['cpf'] != "" and c.cpf == request.form['cpf']:
+                    flash("Esse CPF já está associado a outro cliente!")
+                    return redirect(url_for('clientes_cadastrados'))
+        cliente.nome = request.form['nome']
+        cliente.telefone = request.form['telefone']
+        if request.form['data_pagamento'] == "":
+            cliente.data_pagamento = cliente.data_pagamento
+        else:
+            cliente.data_pagamento = request.form['data_pagamento']
+        cliente.cpf = request.form['cpf']
+        cliente.observacao = request.form['observacao']
+        # cliente.aumentar_divida(150.00)
+        # cliente.diminuir_divida(300.00)
+        # cliente.atualizar_data_ultima_compra()
+        db.session.commit()
+        flash(f"O Cliente {cliente.nome} foi alterado com sucesso!")
+        return clientes_cadastrados()
+    return render_template('edit_cliente.html', cliente=cliente)
+
+
+@app.route("/deletar_cliente/<int:id>")
+@login_required
+def deletar_cliente(id):
+    cliente = Cliente.query.get(id)
+    return render_template('deletar_cliente.html', cliente=cliente)
+
+
+@app.route("/delete_cli/<int:id>")
+@login_required
+def delete_cli(id):
+    cliente = Cliente.query.get(id)
+    if cliente:
+        db.session.delete(cliente)
+        db.session.commit()
+        # print('Cliente apagado com sucesso! ')
+        return redirect(url_for('clientes_cadastrados'))
+    # print('Não existe esse ID')
+    return redirect(url_for('clientes_cadastrados'))
+
+
+
+@app.route("/bloquear_cliente/<int:id>")
+@login_required
+def bloquear_cliente(id):
+    cliente = Cliente.query.get(id)
+    if cliente:
+        cliente.bloquear_cliente()
+        # print('Cliente Bloqueado')
+        flash(f'O cliente {cliente.nome} Não pode comprar fiado!')
+        return clientes_cadastrados()
+    # print('Não existe esse Usuario')
+    return clientes_cadastrados()
+
+@app.route("/desbloquear_cliente/<int:id>")
+@login_required
+def desbloquear_cliente(id):
+    cliente = Cliente.query.get(id)
+    if cliente:
+        cliente.desbloquear_cliente()
+        flash(f'O cliente {cliente.nome} Pode comprar fiado!')
+        # print('Cliente desbloqueado')
+        return clientes_cadastrados()
+    # print('Não existe esse Usuario')
+    return clientes_cadastrados()
+
+
+
 # codigo_barras, descricao_produto, quantidade_produto,
 #                  quantidade_minima, preco_custo,
 #                  preco_venda, quantidade_maxima=None, peso_liquido=None,

@@ -10,6 +10,9 @@
 
 
 
+if request.form['cpf'] != "" and c.cpf == request.form['cpf']:
+
+
 
 
 
