@@ -63,6 +63,7 @@ class Usuario(db.Model, UserMixin):
     senha = db.Column(db.String(128), nullable=False)
     status = db.Column(db.Boolean)
     recuperou_senha = db.Column(db.Boolean)
+    inativado = db.Column(db.Boolean)
 
     id_nivel_acesso_id = db.Column(db.Integer,
                                    db.ForeignKey("nivel_acesso.id"),
@@ -83,6 +84,8 @@ class Usuario(db.Model, UserMixin):
         self.id_nivel_acesso_id = id_nivel_acesso_id
         # True = Recuperou - False = Não Recuperou.
         self.recuperou_senha = False
+        # True = Inativo - False = Ativo.
+        self.inativado = False
 
     '''O método abaixo serve para criptografar a senha do usuário, fazendo com que
     os dados dele estejam mais seguros'''
@@ -109,6 +112,11 @@ class Usuario(db.Model, UserMixin):
         if self.status:
             return 'DESBLOQUEADO'  # TRUE
         return 'BLOQUEADO'  # FALSE
+
+    def verificar_inativado(self):
+        if self.inativado:
+            return 'INATIVO'
+        return 'ATIVO'
 
     def bloquear_usuario(self):
         self.status = False
@@ -168,6 +176,18 @@ class Usuario(db.Model, UserMixin):
         db.session.commit()
         # return self.verificar_status()
 
+    def inativar_usuario(self):
+        self.inativado = True
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
+    def ativar_usuario(self):
+        self.inativado = False
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
     def __repr__(self):
         return "<User %r>" % self.id
 
@@ -188,6 +208,7 @@ class Cliente(db.Model):
     status = db.Column(db.Boolean)
     cpf = db.Column(db.String(11))
     observacao = db.Column(db.String(50))
+    inativado = db.Column(db.Boolean)
 
     now = datetime.datetime.now()
 
@@ -201,12 +222,18 @@ class Cliente(db.Model):
         self.status = True  # True = Pode comprar fiado - False = Não pode.
         self.cpf = cpf
         self.observacao = observacao
+        self.inativado = False
 
     # Tratar no front a exibição do status do usuário
     def verificar_status(self):
         if self.status:
-            return 'PODE COMPRAR FIADO'  # TRUE
-        return 'NÃO PODE COMPRAR FIADO'  # FALSE
+            return '100'  # TRUE
+        return '999'  # FALSE
+
+    def verificar_inativado(self):
+        if self.inativado:
+            return 'INATIVO'
+        return 'ATIVO'
 
     def bloquear_cliente(self):
         self.status = False
@@ -265,6 +292,19 @@ class Cliente(db.Model):
         self.valor_divida += +(valor)
         db.session.add(self)
         db.session.commit()
+
+    def inativar_cliente(self):
+        self.inativado = True
+        db.session.add(self)
+        db.session.commit()
+        # return self.verificar_status()
+
+    def ativar_cliente(self):
+        self.inativado = False
+        db.session.add(self)
+        db.session.commit()
+
+        # return self.verificar_status()
 
     def __repr__(self):
         return "<Cliente %r>" % self.id

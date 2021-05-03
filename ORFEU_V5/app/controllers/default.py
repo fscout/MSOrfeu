@@ -57,14 +57,17 @@ def login():
             login=form.login.data).first()
         if usuario and usuario.descriptografar_senha(form.senha.data):
             if usuario.status:
-                if usuario.recuperou_senha:
-                    return render_template('alterar_senha_usuario.html', usuario=usuario)
-                if form.lembrar_me.data:
-                    login_user(usuario, remember=True,
-                               duration=timedelta(days=2))
-                else:
-                    login_user(usuario)
-                return redirect(url_for('usuarios_cadastrados'))
+                if not usuario.inativado:
+                    if usuario.recuperou_senha:
+                        return render_template('alterar_senha_usuario.html', usuario=usuario)
+                    if form.lembrar_me.data:
+                        login_user(usuario, remember=True,
+                                   duration=timedelta(days=2))
+                    else:
+                        login_user(usuario)
+                    return redirect(url_for('usuarios_cadastrados'))
+                flash("Usuário encontra-se inativado!")
+                return redirect(url_for('login'))
             flash("Usuário encontra-se bloqueado!")
             return redirect(url_for('login'))
         else:
@@ -109,7 +112,6 @@ def add_usuario():
         db.session.commit()
         return redirect(url_for('usuarios_cadastrados'))
     return render_template('add_usuario.html')
-
 
 
 @app.route("/add_usuario_full")
@@ -185,6 +187,32 @@ def bloquear_usuario(id):
     return usuarios_cadastrados()
 
 
+@app.route("/inativar_usuario/<int:id>")
+@login_required
+def inativar_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.inativar_usuario()
+        flash(f'O usuário {usuario.nome} foi inativado!')
+        # print('Usuário desbloqueado')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
+@app.route("/ativar_usuario/<int:id>")
+@login_required
+def ativar_usuario(id):
+    usuario = Usuario.query.get(id)
+    if usuario:
+        usuario.ativar_usuario()
+        # print('Usuário Bloqueado')
+        flash(f'O usuário {usuario.nome} foi ativado!')
+        return usuarios_cadastrados()
+    # print('Não existe esse Usuario')
+    return usuarios_cadastrados()
+
+
 @app.route("/desbloquear_usuario/<int:id>")
 @login_required
 def desbloquear_usuario(id):
@@ -204,7 +232,8 @@ def resetar_usuario(id):
     usuario = Usuario.query.get(id)
     if usuario:
         usuario.resetar_usuario()
-        flash(f'A senha do usuário {usuario.nome} foi resetada para 123@Orfeu!')
+        flash(
+            f'A senha do usuário {usuario.nome} foi resetada para 123@Orfeu!')
         # print('Usuário desbloqueado')
         return usuarios_cadastrados()
     # print('Não existe esse Usuario')
@@ -257,13 +286,10 @@ def op_caixa():
     return render_template('op_caixa.html')
 
 
-
 @app.route("/add_cliente_full")
 @login_required
 def add_cliente_full():
     return render_template('add_cliente.html')
-
-
 
 
 @app.route("/add_cliente", methods=['GET', 'POST'])
@@ -289,13 +315,11 @@ def add_cliente():
     return render_template('add_cliente.html')
 
 
-
 @app.route("/clientes_cadastrados")
 @login_required
 def clientes_cadastrados():
     clientes = Cliente.query.all()
     return render_template("clientes_cadastrados.html", clientes=clientes)
-
 
 
 @app.route("/edit_cliente/<int:id>", methods=['GET', 'POST'])
@@ -349,7 +373,6 @@ def delete_cli(id):
     return redirect(url_for('clientes_cadastrados'))
 
 
-
 @app.route("/bloquear_cliente/<int:id>")
 @login_required
 def bloquear_cliente(id):
@@ -361,6 +384,7 @@ def bloquear_cliente(id):
         return clientes_cadastrados()
     # print('Não existe esse Usuario')
     return clientes_cadastrados()
+
 
 @app.route("/desbloquear_cliente/<int:id>")
 @login_required
@@ -375,6 +399,28 @@ def desbloquear_cliente(id):
     return clientes_cadastrados()
 
 
+
+@app.route("/inativar_cliente/<int:id>")
+@login_required
+def inativar_cliente(id):
+    cliente = Cliente.query.get(id)
+    if cliente:
+        cliente.inativar_cliente()
+        print('inativar_cliente')
+        flash(f'O cliente {cliente.nome} foi inativado!')
+        return clientes_cadastrados()
+    return clientes_cadastrados()
+
+
+@app.route("/ativar_cliente/<int:id>")
+@login_required
+def ativar_cliente(id):
+    cliente = Cliente.query.get(id)
+    if cliente:
+        cliente.ativar_cliente()
+        flash(f'O cliente {cliente.nome} foi ativado!')
+        return clientes_cadastrados()
+    return clientes_cadastrados()
 
 # codigo_barras, descricao_produto, quantidade_produto,
 #                  quantidade_minima, preco_custo,
@@ -571,8 +617,6 @@ def add_marca():
     return redirect(url_for('listar_marcas'))
 
 
-
-
 @app.route("/edit_marca/<int:id>", methods=['GET', 'POST'])
 @login_required
 def edit_marca(id):
@@ -607,10 +651,6 @@ def listar_marcas():
     return render_template('add_marca.html', marcas=marcas)
 
 
-
-
-
-
 @app.route("/add_medida", methods=['GET', 'POST'])
 @login_required
 def add_medida():
@@ -624,8 +664,6 @@ def add_medida():
         db.session.commit()
         return redirect(url_for('listar_medidas'))
     return redirect(url_for('listar_medidas'))
-
-
 
 
 @app.route("/edit_medida/<int:id>", methods=['GET', 'POST'])
@@ -662,14 +700,11 @@ def listar_medidas():
     return render_template('add_medida.html', medidas=medidas)
 
 
-
-
 @app.route("/tipo_pagamento")
 @login_required
 def tipo_pagamento():
     tipo_pagamentos = TipoPagamento.query.all()
     return render_template('tipo_pagamento.html', tipo_pagamentos=tipo_pagamentos)
-
 
 
 '''
@@ -684,6 +719,8 @@ print('ADMINISTRADOR: ', admin)
 print('ADMINISTRADOR: ', admin.nivel_acesso)
 
 
+
+
 op_caixa_01 = NivelAcesso('OPERADOR DE CAIXA')  # ID 2
 db.session.add(op_caixa_01)
 db.session.commit()
@@ -696,8 +733,6 @@ print()
 print()
 print()
 '''
-
-
 
 
 '''

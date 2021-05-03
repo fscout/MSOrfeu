@@ -22,6 +22,7 @@
                 <!-- <th class="fill2">SENHA</th> -->
                 <th class="fill2">STATUS</th>
                 <th class="fill2">ID_NIVEL_ACESSO_ID</th>
+                <th class="fill2">ATIVO/INATIVO</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,7 @@
                 <!-- <td>{{u.senha}}</td> -->
                 <td>{{u.verificar_status()}}</td>
                 <td>{{u.exibir_nivel_acesso()}}</td>
+                <td>{{u.verificar_inativado()}}</td>
                 <td>
                     <a href="/edit_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/editar.png')}}"></a>
                     <a href="/deletar_usuario/{{u.id}}"> <img src="{{url_for('static', filename='images/remover.png')}}"></a>
@@ -45,8 +47,17 @@
                         <a href="/bloquear_usuario/{{u.id}}"><button>BLOQUEAR</button></a>
                     {% endif %}
                     <p></p>
+                    
+                    {% if u.verificar_inativado() == 'INATIVO' %}
+                        <a href="/ativar_usuario/{{u.id}}"><button>ATIVAR USUÁRIO</button></a>
+                        {% else %}
+                        <a href="/inativar_usuario/{{u.id}}"><button>INATIVAR USUÁRIO</button></a>
+                    {% endif %}
+
+                    <p></p>
                     <a href="/resetar_usuario/{{u.id}}"><button>Resetar Senha</button></a>
                 </td>
+
             </tr>
             {% endfor %}
         </tbody>

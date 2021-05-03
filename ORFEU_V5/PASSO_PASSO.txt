@@ -1,5 +1,5 @@
 PASSO A PASSO NO BASH
-
+ 
 1º CRIAR O AMBIENTE VIRTUAL --- virtualenv venv
 2º ATIVAR O AMBIENTE VIRTUAL --- source venv/Scripts/activate
 3º INSTALAR AS BIBLIOTECAS --- pip install -r requirements.txt
